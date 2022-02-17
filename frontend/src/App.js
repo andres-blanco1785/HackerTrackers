@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import './App.css';
 
-async function getFibSequence(n) {
+async function getTransactionInfo(n) {
   
-  let sequence = await fetch(`http://127.0.0.1:5000/fibonacci/${n}`)
+  let sequence = await fetch(`http://127.0.0.1:5000/transaction/${n}`)
       .then(response => response.text())
       .then(result => { return result });
   
@@ -12,19 +12,19 @@ async function getFibSequence(n) {
 
 function App() {
 
-  const [fibInput, setFibInput] = useState();
-  const [fibOutput, setFibOutput] = useState({});
+  const [transactionInput, setTransactionInput] = useState();
+  const [transactionOutput, setTransactionOutput] = useState({});
 
   function onButtonClick() {
-    setFibOutput(getFibSequence(fibInput));
+    setTransactionOutput(getTransactionInfo(transactionInput));
   }
   
   
   return (
     <div className="App">
-      <input type="number" onChange={(e) => setFibInput(e.target.value)} value={fibInput}/>
+      <input type="text" onChange={(e) => setTransactionInput(e.target.value)} value={transactionInput}/>
       <button onClick={onButtonClick}>testing</button>
-      <p>{fibOutput.input}</p>
+      {/* <p>{transactionOutput.inspect}</p> */}
     </div>
   );
 }
