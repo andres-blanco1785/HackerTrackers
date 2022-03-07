@@ -1,30 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import './App.css';
+import { HashRouter, Route, NavLink, Routes } from "react-router-dom";
+import { InputPage } from "./pages/InputPage";
+import { OutputPage } from "./pages/OutputPage";
+import { HomePage } from "./pages/HomePage";
+import { AboutPage } from "./pages/AboutPage";
+import { ContactPage } from "./pages/ContactPage";
 
-async function getTransactionInfo(n) {
-  
-  let sequence = await fetch(`http://127.0.0.1:5000/transaction/${n}`)
-      .then(response => response.text())
-      .then(result => { return result });
-  
-  return sequence;
-}
 
 function App() {
 
-  const [transactionInput, setTransactionInput] = useState();
-  const [transactionOutput, setTransactionOutput] = useState({});
-
-  function onButtonClick() {
-    setTransactionOutput(getTransactionInfo(transactionInput));
-  }
-  
-  
   return (
     <div className="App">
-      <input type="text" onChange={(e) => setTransactionInput(e.target.value)} value={transactionInput}/>
-      <button onClick={onButtonClick}>testing</button>
-      {/* <p>{transactionOutput.inspect}</p> */}
+      <HashRouter basename="/">
+      <NavLink to="/input">Start Tracing</NavLink>
+      <NavLink to="/about">About</NavLink>
+      <NavLink to="/contact">Contact</NavLink>
+        <Routes>
+          <Route exact path="/" element={<HomePage />}/>
+          <Route path="/input" element={<InputPage />}/>
+          <Route path="/output" element={<OutputPage />}/>
+          <Route path="/about" element={<AboutPage />}/>
+          <Route path="/contact" element={<ContactPage />}/>
+        </Routes>
+      </HashRouter>
     </div>
   );
 }
