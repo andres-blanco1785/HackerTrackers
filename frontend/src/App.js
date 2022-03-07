@@ -26,19 +26,7 @@ function App() {
   function onButtonClick()
   {
       getTransactionInfo(transactionInput)
-          .then((transactionJson)=>{
-               setTransactionOutput(transactionJson)});
-      // if(typeof transactionOutput.accounts !== 'undefined')
-      // {
-      //     setlistAccNum()
-      // }
-
-
-
-      //     .then(transactionResult => JSON.stringify(transactionResult, null, 2))
-      //     .then((TransactionOutputString)=>{
-      //     setTransactionOutput(TransactionOutputString)})
-      // ;
+        .then((transactionJson)=>{ setTransactionOutput(transactionJson) });
   }
   useEffect(()=>{
       printTransactionInfo()
