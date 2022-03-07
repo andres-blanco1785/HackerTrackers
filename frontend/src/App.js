@@ -1,88 +1,29 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import './App.css';
-import Collapsible from "./Collapsible";
+import { HashRouter, Route, NavLink, Routes } from "react-router-dom";
+import { InputPage } from "./pages/InputPage";
+import { OutputPage } from "./pages/OutputPage";
+import { HomePage } from "./pages/HomePage";
+import { AboutPage } from "./pages/AboutPage";
+import { ContactPage } from "./pages/ContactPage";
 
-
-async function getTransactionInfo(n) {
-  
-  let sequence = await fetch(`http://127.0.0.1:5000/transaction/${n}`)
-      .then(response => response.json())
-      .then(result => { return result});
-
-
-  console.log('sequence',sequence)
-
-  return sequence;
-}
 
 function App() {
 
-  const [transactionInput, setTransactionInput] = useState();
-  const [transactionOutput, setTransactionOutput]= useState('');
-  const [open, setOpen] = useState(true);
-  const [listAccNum, setlistAccNum] = useState();
-
-
-  function onButtonClick()
-  {
-      getTransactionInfo(transactionInput)
-        .then((transactionJson)=>{ setTransactionOutput(transactionJson) });
-  }
-  useEffect(()=>{
-      printTransactionInfo()
-      },[transactionOutput]
-  )
-
-  function printTransactionInfo()
-  {
-
-      console.log("transactionOutput", transactionOutput);
-
-
-      if(typeof transactionOutput.accounts !== 'undefined')
-      {
-          let numAccounts = transactionOutput.accounts.length;
-          console.log(numAccounts );
-
-          return(
-              <>
-                  <h2>Transaction accounts </h2>
-                    {transactionOutput.accounts?.map((account, i) => (
-                        <Collapsible label = {account.account.address}>
-                            <p> postBalances: {transactionOutput.meta.postBalances[i]}</p>
-                            <p> preBalances: {transactionOutput.meta.preBalances[i]}</p>
-                            <p> Difference :{transactionOutput.meta.postBalances[i] - transactionOutput.meta.preBalances[i]} </p>
-                        </Collapsible>
-
-                    ))}
-
-              </>
-
-
-
-          )
-
-      }
-
-
-
-
-
-  }
-
-
-
-  
   return (
     <div className="App">
-      <input type="text"
-             onChange={(e) => setTransactionInput(e.target.value)}
-             value={transactionInput}/>
-      <button onClick={onButtonClick}>transactionID</button>
-
-
-      <p>{printTransactionInfo()}</p>
-
+      <HashRouter basename="/">
+      <NavLink to="/input">Start Tracing</NavLink>
+      <NavLink to="/about">About</NavLink>
+      <NavLink to="/contact">Contact</NavLink>
+        <Routes>
+          <Route exact path="/" element={<HomePage />}/>
+          <Route path="/input" element={<InputPage />}/>
+          <Route path="/output" element={<OutputPage />}/>
+          <Route path="/about" element={<AboutPage />}/>
+          <Route path="/contact" element={<ContactPage />}/>
+        </Routes>
+      </HashRouter>
     </div>
   );
 }
