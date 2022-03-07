@@ -1,6 +1,7 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
 from solana.rpc.api import Client
+import numpy as npy
 import requests
 import os
 
@@ -23,18 +24,29 @@ def get_transaction_info(transactionID):
     print('this is the response', response.json())
     return response.json()
 
-@app.route("/fin_transaction/<string:address>/<string:bef_addr>")
-def get_final_transaction(address, bef_addr):
-    http_client = Client("https://api.mainnet-beta.solana.com")
-    response = http_client.get_signatures_for_address(address, before=bef_addr)
+@app.route("/fin_transaction/<string:transID>")
+def get_final_transaction(transID):
+    http_client = Client("https://ssc-dao.genesysgo.net/")
+    response = http_client.get_transaction(transID)
+    result = response['result']
+    generalBalChange = -1
+    tokenBalChange = -1
 
-    if(len(response.get("result")) < 1000):
-        return response[-1]
+    if(len(result['postBalances']) != 0):
+        generalBalChange = npy.max(npy.subtract(result['postBalances'], result['preBalances']))
+    if(len(result['postTokenBalances']) != 0):
+        tokenBalChange = npy.max(npy.subtract(result['postTokenBalances'], result['preTokenBalances']))
 
-    else:
-        last = response[len(response) - 1]
+    #response = http_client.get_signatures_for_address(address, before=bef_addr)
+    list = response['result']
 
-        return get_final_transaction(address, last.get)
+    while(len(list) >= 1000):
+        bef_addr = list[0]['signature']
+        response = http_client.get_signatures_for_address(address, before=bef_addr)
+        list = response['result']
+        #print("this is the list[0]: ", list[0])
+
+    return list[0]
 
 
 if __name__ == '__main__':
