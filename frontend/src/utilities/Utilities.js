@@ -9,4 +9,4 @@ export async function getTransactionInfo(n) {
     console.log('sequence',sequence)
   
     return sequence;
-  }
+}

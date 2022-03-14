@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Collapsible from "../utilities/Collapsible";
+import Collapsible from "../components/Collapsible";
 import { useLocation } from "react-router-dom";
 import { getTransactionInfo } from '../utilities/Utilities';
 
 export function OutputPage(props) {
   const { state } = useLocation();
   const [transactionOutput, setTransactionOutput] = useState({});
-
   
   function printTransactionInfo() {
 		if(typeof transactionOutput.accounts !== 'undefined') {
