@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Collapsible from "../components/Collapsible";
+import { Alert } from 'reactstrap';
 import { useLocation } from "react-router-dom";
 import { getTransactionInfo } from '../utilities/Utilities';
+import './OutputPage.css';
 
 export function OutputPage(props) {
   const { state } = useLocation();
@@ -23,6 +25,14 @@ export function OutputPage(props) {
 					))}
 				</>
 			)
+		} else {
+			return(
+				<div>
+					<Alert color="danger" className="errorBox">
+						This transaction is INVALID, please try again
+					</Alert>
+				</div>
+			)
 		}
 	}
 
@@ -30,13 +40,12 @@ export function OutputPage(props) {
     getTransactionInfo(state)
       .then((transactionJson)=>{ setTransactionOutput(transactionJson) });
     printTransactionInfo()
-    },[transactionOutput]
+    },[transactionOutput, state]
   )
 
   return (
     <div>
-      OUTPUT PAGE
-    <p>{printTransactionInfo()}</p>
+    	<p>{printTransactionInfo()}</p>
     </div>
   )
 }
