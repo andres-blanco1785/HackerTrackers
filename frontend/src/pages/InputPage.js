@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { Button, Container, Input } from 'reactstrap';
+import './InputPage.css';
 
 export function InputPage() {
 
@@ -12,11 +14,14 @@ export function InputPage() {
 
 
   return (
-    <div>
-      <input type="text"
-            onChange={(e) => setTransactionInput(e.target.value)}
-            value={transactionInput}/>
-      <button onClick={onButtonClick}>transactionID</button>
+    <div style={{ height: "100vh"}}>
+      <Container fluid className="inputBox">
+        <Input type="text"
+          onChange={(e) => setTransactionInput(e.target.value)}
+          value={transactionInput}></Input>
+
+        <Button onClick={onButtonClick}>transactionID</Button>
+      </Container>
     </div>
   )
 }

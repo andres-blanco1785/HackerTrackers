@@ -15,11 +15,9 @@ function App() {
   return (
     <div className="App">
       <HashRouter basename="/">
-        <Navbar expand="md" >
-          <NavbarBrand src="/" className="mr-auto">
-            <a href="/">
-              <img src={require("./assets/HackerTrackers.png")} style={{width: 256}} alt="Navigation bar brand logo"/>
-            </a>	
+        <Navbar expand="md">
+          <NavbarBrand href="/" className="mr-auto">
+            <img src={require("./assets/HackerTrackers.png")} style={{width: 256}} alt="Navigation bar brand logo"/>	
           </NavbarBrand>
           <Nav className="me-auto"
           navbar>
