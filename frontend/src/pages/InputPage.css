@@ -1,6 +1,5 @@
-.inputBox{
-    padding-top: "100vh";
-    padding-left: "20vh";
-    padding-right: "20vh";
+.inputBox {
+    padding-top: 10vh;
+    width: 100vh;
     background-color: aqua;
 }
