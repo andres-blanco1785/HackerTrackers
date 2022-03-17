@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Button, Container, Input } from 'reactstrap';
+import { Button, Form, Input, Label } from 'reactstrap';
 import './InputPage.css';
 
 export function InputPage() {
@@ -9,19 +9,21 @@ export function InputPage() {
   const navigate = useNavigate();
 
   function onButtonClick() {
-      navigate("/output", { state: transactionInput});
+    navigate("/output", { state: transactionInput});
   }
 
 
   return (
-    <div style={{ height: "100vh"}}>
-      <Container fluid className="inputBox">
-        <Input type="text"
+    <div className="inputPage">
+      <div className="inputGroup">
+        <Label for="transactionInput">Transaction ID:</Label>
+        <Input type="text" className="inputTextBox"
+          id="transactionInput"
           onChange={(e) => setTransactionInput(e.target.value)}
-          value={transactionInput}></Input>
-
-        <Button onClick={onButtonClick}>transactionID</Button>
-      </Container>
+          value={transactionInput}
+        />
+        <Button color="light" onClick={onButtonClick}>Start Tracing!</Button>
+      </div>
     </div>
   )
 }
