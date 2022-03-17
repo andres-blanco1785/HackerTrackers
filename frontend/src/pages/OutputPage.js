@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import Collapsible from "../components/Collapsible";
-import { Alert } from 'reactstrap';
+import { useNavigate } from 'react-router';
+import { Alert, Button } from 'reactstrap';
 import { useLocation } from "react-router-dom";
 import { getTransactionInfo } from '../utilities/Utilities';
+import Collapsible from "../components/Collapsible";
 import './OutputPage.css';
 
 export function OutputPage(props) {
-  const { state } = useLocation();
-  const [transactionOutput, setTransactionOutput] = useState({});
+	
+	const [transactionOutput, setTransactionOutput] = useState({});
+	const { state } = useLocation();
+	const navigate = useNavigate();
   
-  function printTransactionInfo() {
+	function printTransactionInfo() {
 		if(typeof transactionOutput.accounts !== 'undefined') {
 		let numAccounts = transactionOutput.accounts.length;
 			console.log(numAccounts);
@@ -31,6 +34,7 @@ export function OutputPage(props) {
 					<Alert color="danger" className="errorBox">
 						This transaction is INVALID, please try again
 					</Alert>
+					<Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
 				</div>
 			)
 		}
