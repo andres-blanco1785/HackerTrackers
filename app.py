@@ -1,8 +1,8 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
-from flask_cors import cross_origin, CORS
 import requests
 import os
+from flask_cors import CORS, cross_origin
 
 load_dotenv()
 bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
@@ -15,7 +15,7 @@ def hello_world():  # put application's code here
     return 'Hello World!'
 
 @app.route("/transaction/<string:transactionID>")
-# @cross_origin
+@cross_origin()
 def get_transaction_info(transactionID):
     request_headers = {
         'Authorization' : f'Bearer {bearerToken}',

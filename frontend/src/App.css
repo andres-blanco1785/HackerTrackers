@@ -1,5 +1,5 @@
 :root {
-  --bg-dark: #462091;
+  --bg-dark: #001718;
   --bg-light: #DAD0ED;
   --text-dark: #000000;
   --text-light: #ffffff;
@@ -8,8 +8,8 @@
 
 .App {
   text-align: center;
-  background-color: var(--bg-light);
-  color: var(--text-dark);
+  background-color: var(--bg-dark);
+  color: var(--text-light);
 }
 
 .App-logo {
