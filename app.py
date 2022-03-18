@@ -4,17 +4,20 @@ from solana.rpc.api import Client
 import numpy as npy
 import requests
 import os
+from flask_cors import CORS, cross_origin
 
 load_dotenv()
 bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def hello_world():  # put application's code here
     return 'Hello World!'
 
 @app.route("/transaction/<string:transactionID>")
+@cross_origin()
 def get_transaction_info(transactionID):
     request_headers = {
         'Authorization' : f'Bearer {bearerToken}',
