@@ -1,5 +1,6 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
+
 from solana.rpc.api import Client
 import numpy as npy
 import requests
@@ -26,6 +27,7 @@ def get_transaction_info(transactionID):
     response = requests.get(f'https://api.solanabeach.io/v1/transaction/{transactionID}', headers=request_headers)
     print('this is the response', response.json())
     return response.json()
+
 
 @app.route("/fin_transaction/<string:transID>")
 def get_final_transaction(transID):
@@ -115,7 +117,6 @@ def get_final_transaction(transID):
         accounts.append(account)
 
     return {"Transactions": transactions, "Accounts": accounts}
-
 
 if __name__ == '__main__':
     app.run()
