@@ -5,8 +5,9 @@ export async function getTransactionInfo(n) {
         .then(response => response.json())
         .then(result => { return result});
   
-  
-    console.log('sequence',sequence)
-  
     return sequence;
+}
+
+export async function getBlocklistedAccounts() {
+    return 
 }

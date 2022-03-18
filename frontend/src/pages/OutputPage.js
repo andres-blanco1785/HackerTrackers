@@ -5,8 +5,9 @@ import { useLocation } from "react-router-dom";
 import { getTransactionInfo } from '../utilities/Utilities';
 import Collapsible from "../components/Collapsible";
 import './OutputPage.css';
+import Graph from '../components/Graph';
 
-export function OutputPage(props) {
+export default function OutputPage(props) {
 	
 	const [transactionOutput, setTransactionOutput] = useState({});
 	const { state } = useLocation();
@@ -18,7 +19,8 @@ export function OutputPage(props) {
 			console.log(numAccounts);
 			return(
 				<>
-				<h2>Transaction accounts </h2>
+					<h2>Transaction accounts </h2>
+					<Graph transactions={transactionOutput} />
 					{transactionOutput.accounts?.map((account, i) => (
 						<Collapsible label = {account.account.address}>
 							<p> postBalances: {transactionOutput.meta.postBalances[i]}</p>
@@ -26,6 +28,7 @@ export function OutputPage(props) {
 							<p> Difference :{transactionOutput.meta.postBalances[i] - transactionOutput.meta.preBalances[i]} </p>
 						</Collapsible>
 					))}
+					<Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
 				</>
 			)
 		} else {
