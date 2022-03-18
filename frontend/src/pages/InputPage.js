@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { Button, Form, Input, Label } from 'reactstrap';
 import './InputPage.css';
 
-export function InputPage() {
+export default function InputPage() {
 
   const [transactionInput, setTransactionInput] = useState();
   const navigate = useNavigate();
