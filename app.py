@@ -1,14 +1,22 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
+from flask_cors import CORS, cross_origin
 import requests
 import os
-from flask_cors import CORS, cross_origin
+import psycopg2
 
 load_dotenv()
 bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
 
 app = Flask(__name__)
 CORS(app)
+
+con = psycopg2.connect(
+        host="localhost",
+        database="badActors",
+        user="postgres",
+        password="postgres"
+    )
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -23,8 +31,17 @@ def get_transaction_info(transactionID):
     }
     response = requests.get(f'https://api.solanabeach.io/v1/transaction/{transactionID}', headers=request_headers)
     print('this is the response', response.json())
+    populate_data("wallet", "txns")
     return response.json()
 
+def populate_data(wallet, txns):
+    # Cursor
+    cur = con.cursor()
+
+    cur.execute("insert into blacklist (accountwallet, transactions) values (%s,%s);", (wallet,txns))
+    con.commit()
+
+    con.close()
 
 if __name__ == '__main__':
     app.run()
