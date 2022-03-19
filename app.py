@@ -18,7 +18,6 @@ con = psycopg2.connect(
         password="postgres"
     )
 
-
 @app.route('/')
 def hello_world():  # put application's code here
     return 'Hello World!'
@@ -32,16 +31,26 @@ def get_transaction_info(transactionID):
     }
     response = requests.get(f'https://api.solanabeach.io/v1/transaction/{transactionID}', headers=request_headers)
     print('this is the response', response.json())
-    populate_data("wallet", "txns")
     return response.json()
 
-def populate_data(wallet, txns):
-    # Cursor
+#This methods takes dictionaries from the forward and bakcwards trace and populates the database
+def populate_data(table):
+    txns = table.keys()
+    wallets = table.values()
     cur = con.cursor()
-
-    cur.execute("insert into blacklist (accountwallet, transactions) values (%s,%s);", (wallet,txns))
+    for i in range(len(table)):
+        cur.execute("insert into blacklist (transaction_id, accountwallet) values (%s,%s);", (txns[i],wallets[i]))
     con.commit()
-
     con.close()
+
+#This function returns a 2D array of the blacklist table
+def show_blacklist():
+    cur = con.cursor()
+    cur.execute("select * from blacklist")
+    con.commit()
+    blacklist = cur.fetchall()
+    con.close()
+    return blacklist
+
 if __name__ == '__main__':
     app.run()
