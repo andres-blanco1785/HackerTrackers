@@ -35,25 +35,6 @@ def get_transaction_info(transactionID):
     print('this is the response', response.json())
     return response.json()
 
-#This methods takes dictionaries from the forward and bakcwards trace and populates the database
-def populate_data(table):
-    txns = table.keys()
-    wallets = table.values()
-    cur = con.cursor()
-    for i in range(len(table)):
-        cur.execute("insert into blacklist (transaction_id, accountwallet) values (%s,%s);", (txns[i],wallets[i]))
-    con.commit()
-    con.close()
-
-#This function returns a 2D array of the blacklist table
-def show_blacklist():
-    cur = con.cursor()
-    cur.execute("select * from blacklist")
-    con.commit()
-    blacklist = cur.fetchall()
-    con.close()
-    return blacklist
-
 @app.route("/fin_transaction/<string:transID>")
 def get_final_transaction(transID):
     transactionID = transID
@@ -144,8 +125,29 @@ def get_final_transaction(transID):
         account_list = result['transaction']['message']['accountKeys']
         account = account_list[account_index]
         accounts.append(account)
+    print(transactions)
+    populate_data({"Transactions": transactions, "Accounts": accounts})
 
-    return {"Transactions": transactions, "Accounts": accounts}
+#This methods takes dictionaries from the forward and bakcwards trace and populates the database
+def populate_data(dict):
+    txns = dict.get('Transactions')
+    wallets = dict.get('Accounts')
+    print("These are the txns: ", txns)
+    print("These are the wallets", wallets)
+    cur = con.cursor()
+    for i in range(len(txns)):
+        cur.execute("insert into blacklist (transaction_id, accountwallet) values (%s,%s);", (txns[i],wallets[i]))
+    con.commit()
+    con.close()
+
+#This function returns a 2D array of the blacklist table
+def show_blacklist():
+    cur = con.cursor()
+    cur.execute("select * from blacklist")
+    con.commit()
+    blacklist = cur.fetchall()
+    con.close()
+    return blacklist
 
 if __name__ == '__main__':
     app.run()
