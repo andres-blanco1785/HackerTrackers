@@ -9,6 +9,7 @@ import { Slide } from 'react-slideshow-image';
 import {
   View,
 } from 'react-native';
+import hticon from "../images/HackerTrackers.png";
 
 
 
@@ -35,7 +36,8 @@ export function HomePage () {
       <>
 
           <div style={{'backgroundImage': `url(${slide1})`}}>
-            <div>WELCOME TO OUR SPLASH PAGE</div>
+
+
             <Slide easing="ease">
               <div className="each-slide">
                   <div>
