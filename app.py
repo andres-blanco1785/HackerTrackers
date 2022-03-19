@@ -113,9 +113,10 @@ def get_trace_data(transID, level):
         else:
             transactions += [(result[1], result[2], result[3], result[4])]
             accounts += [result[3]]
-            curtrace = get_trace_data(transaction["signature"], level + 1)
-            transactions += curtrace.transactions
-            accounts += curtrace.accounts
+            if level + 1 <3:
+                curtrace = get_trace_data(transaction["signature"], level + 1)
+                transactions += curtrace.transactions
+                accounts += curtrace.accounts
     finaldata.transactions = transactions
     finaldata.accounts = accounts
     return finaldata
