@@ -1,9 +1,9 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
-from flask_cors import CORS, cross_origin
 import requests
-import os
 import psycopg2
+import os
+from flask_cors import CORS, cross_origin
 
 load_dotenv()
 bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
@@ -11,9 +11,13 @@ bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
 app = Flask(__name__)
 CORS(app)
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
+con = psycopg2.connect(
+        host="localhost",
+        database="badActors",
+        user="postgres",
+        password="postgres"
+    )
 
-con = psycopg2.connect('DATABASE_URL')
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -39,6 +43,5 @@ def populate_data(wallet, txns):
     con.commit()
 
     con.close()
-
 if __name__ == '__main__':
     app.run()
