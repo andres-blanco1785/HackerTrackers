@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Button, Form, Input, Label } from 'reactstrap';
+import { Button, Input, Label } from 'reactstrap';
 import './InputPage.css';
 
 export default function InputPage() {

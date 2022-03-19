@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Alert, Button } from 'reactstrap';
 import { useLocation } from "react-router-dom";
-import { getTransactionInfo } from '../utilities/Utilities';
+import { getBackwardsTrace, getTransactionInfo } from '../utilities/Utilities';
 import Collapsible from "../components/Collapsible";
 import './OutputPage.css';
-import Graph from '../components/Graph';
 
 export default function OutputPage(props) {
 	
 	const [transactionOutput, setTransactionOutput] = useState({});
+	const [isLoading, setIsLoading] = useState(true);
+	const [isInvalidRequest, setInvalidRequest] = useState(false);
+	const [backwardsTraceInfo, setBackwardstraceInfo] = useState({});
+
 	const { state } = useLocation();
 	const navigate = useNavigate();
   
@@ -20,7 +23,6 @@ export default function OutputPage(props) {
 			return(
 				<>
 					<h2>Transaction accounts </h2>
-					<Graph transactions={transactionOutput} />
 					{transactionOutput.accounts?.map((account, i) => (
 						<Collapsible label = {account.account.address}>
 							<p> postBalances: {transactionOutput.meta.postBalances[i]}</p>
@@ -31,28 +33,51 @@ export default function OutputPage(props) {
 					<Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
 				</>
 			)
-		} else {
-			return(
-				<div>
-					<Alert color="danger" className="errorBox">
-						This transaction is INVALID, please try again
-					</Alert>
-					<Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
-				</div>
-			)
 		}
 	}
 
-  useEffect(()=>{
-    getTransactionInfo(state)
-      .then((transactionJson)=>{ setTransactionOutput(transactionJson) });
-    printTransactionInfo()
-    },[transactionOutput, state]
-  )
+	async function testing(n) {
 
-  return (
-    <div>
-    	<p>{printTransactionInfo()}</p>
-    </div>
+		const transactionJSON = await getBackwardsTrace(n)
+			.then(setIsLoading(false));
+
+		setBackwardstraceInfo(transactionJSON);
+		if(transactionJSON === "Bad Request") {
+			setIsLoading(false);
+			setInvalidRequest(true);
+		}
+
+
+		// console.log('transactionJSON: ', transactionJSON);
+	}
+
+	useEffect(()=>{
+		testing(state);
+	}, [])
+
+	return (
+		<div>
+			{isLoading &&
+				<p>LOADING</p>
+			}
+			{isInvalidRequest &&
+				<div>
+				<Alert color="danger" className="errorBox">
+					This transaction is INVALID, please try again
+				</Alert>
+				<Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
+			</div>
+			}
+			{(!isLoading && (backwardsTraceInfo !== null) && (backwardsTraceInfo !== "Bad Request")) && 
+				<div>
+					<h1>Accounts Assosiated:</h1>
+					{/* {backwardsTraceInfo.accounts.map((account, i) => {
+						<p key={i}>
+							account
+						</p>
+					})} */}
+				</div>
+			}
+		</div>
   )
 }
