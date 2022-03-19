@@ -11,12 +11,9 @@ bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
 app = Flask(__name__)
 CORS(app)
 
-con = psycopg2.connect(
-        host="localhost",
-        database="badActors",
-        user="postgres",
-        password="postgres"
-    )
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+con = psycopg2.connect('DATABASE_URL')
 
 @app.route('/')
 def hello_world():  # put application's code here
