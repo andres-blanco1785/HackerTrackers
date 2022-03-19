@@ -2,11 +2,12 @@ import React from "react";
 import './App.css';
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { Navbar, NavbarBrand, NavItem, NavLink, Nav } from 'reactstrap';
-import { InputPage } from "./pages/InputPage";
-import { OutputPage } from "./pages/OutputPage";
-import { HomePage } from "./pages/HomePage";
-import { AboutPage } from "./pages/AboutPage";
-import { ContactPage } from "./pages/ContactPage";
+import InputPage from "./pages/InputPage";
+import OutputPage from "./pages/OutputPage";
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import BlocklistPage from "./pages/BlocklistPage";
 
 function App() {
 
@@ -28,6 +29,9 @@ function App() {
             <NavItem>
               <NavLink href="/#/contact">Contact</NavLink>
             </NavItem>
+            <NavItem>
+              <NavLink href="/#/blocklist">Blocklist</NavLink>
+            </NavItem>
           </Nav>
         </Navbar>
         <Routes>
@@ -36,6 +40,7 @@ function App() {
           <Route path="/output" element={<OutputPage />}/>
           <Route path="/about" element={<AboutPage />}/>
           <Route path="/contact" element={<ContactPage />}/>
+          <Route path="/blocklist" element={<BlocklistPage />}/>
         </Routes>
       </HashRouter>
     </div>

@@ -1,9 +1,9 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
-
 from solana.rpc.api import Client
 import numpy as npy
 import requests
+import psycopg2
 import os
 from flask_cors import CORS, cross_origin
 import json
@@ -13,6 +13,13 @@ bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
 
 app = Flask(__name__)
 CORS(app)
+
+con = psycopg2.connect(
+        host="localhost",
+        database="badActors",
+        user="postgres",
+        password="postgres"
+    )
 
 @app.route('/')
 def hello_world():  # put application's code here
@@ -29,6 +36,24 @@ def get_transaction_info(transactionID):
     print('this is the response', response.json())
     return response.json()
 
+#This methods takes dictionaries from the forward and bakcwards trace and populates the database
+def populate_data(table):
+    txns = table.keys()
+    wallets = table.values()
+    cur = con.cursor()
+    for i in range(len(table)):
+        cur.execute("insert into blacklist (transaction_id, accountwallet) values (%s,%s);", (txns[i],wallets[i]))
+    con.commit()
+    con.close()
+
+#This function returns a 2D array of the blacklist table
+def show_blacklist():
+    cur = con.cursor()
+    cur.execute("select * from blacklist")
+    con.commit()
+    blacklist = cur.fetchall()
+    con.close()
+    return blacklist
 
 class TraceData:
   def __init__(self, transactions, accounts):
@@ -230,6 +255,10 @@ def get_final_transaction(transID):
     transactionID = transID
     http_client = Client("https://ssc-dao.genesysgo.net/")
     response = http_client.get_transaction(transactionID)
+    
+    if 'error' in response:
+        return "Bad Request", 400
+    
     result = response['result']
     accounts = []
     transactions = []
