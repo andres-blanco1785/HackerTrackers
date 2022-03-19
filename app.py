@@ -6,14 +6,8 @@ import numpy as npy
 import requests
 import os
 from flask_cors import CORS, cross_origin
-from requests import RequestException
-from solana.exceptions import SolanaRpcException
-from solana.rpc.api import Client
-import requests
 import json
 import time
-import socket
-from urllib3.exceptions import ReadTimeoutError
 load_dotenv()
 bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
 
@@ -41,85 +35,146 @@ class TraceData:
     self.transactions = []
     self.accounts = []
 
-def get_initial_data(transID):
-    transaction_info = requests.get(f'https://public-api.solscan.io/transaction/{transID}')
-    curdict = transaction_info.json()
-    inputAccounts = curdict["inputAccount"]
-    scammer_address = ""
-    user_address = ""
-
-    for i in inputAccounts:
-        if i["signer"] == False and i["writable"]:
-            scammer_address = i["account"]
-        elif i["signer"]  and i["writable"]:
-            user_address = i["account"]
-    soltransfer = curdict["solTransfers"]
-    cursolamount = soltransfer[0]["amount"]
-    sol_exchanged = cursolamount * 0.000000001
-    return True, transID, user_address, scammer_address, sol_exchanged
 
 
-
-
-
-def get_transaction_data(transactionID, curaddress):
-    # IGNORE NON-SOL TRANSFERS
+def get_suspicious_accounts(transactionID, currentaccount): # this functions returns list of accounts which received SOL/tokens within a transaction
+    finaldata = TraceData([], [])
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    accounts = []
+    balances = []
+    transactions = []
     response = http_client.get_transaction(transactionID)
     result = response.get("result")
     meta = result.get("meta")
+    errcode = meta.get("err")
+    if errcode is not None:
+        return finaldata
     postBalances = meta.get("postBalances")
     preBalances = meta.get("preBalances")
+    posttokenbal = meta.get("postTokenBalances")
+    pretokenbal = meta.get("preTokenBalances")
+    accountKeys = result.get("transaction").get("message").get("accountKeys")
+    #loop through token balances, if the difference between postand pre is positive, add that account at that index to array
+    # check to make sure  who gained is not the current account
+    for i in range(0, len(postBalances)):
+        if postBalances[i] - preBalances[i] > 0:
+            if currentaccount == accountKeys[i]:
+                finaldata.accounts = []
+                finaldata.transactions = []
+                return finaldata
+            accounts += [accountKeys[i]]
+    tokenamounts = min(len(posttokenbal), len(pretokenbal))
+    for j in range(0, tokenamounts):
+        temppostoken = posttokenbal[j].get("uiTokenAmount").get("uiAmount")
+        temppretoken = pretokenbal[j].get("uiTokenAmount").get("uiAmount")
+        if temppostoken is None:
+            temppostoken = 0.0
+        if temppretoken is None:
+            temppretoken = 0.0
+        if temppostoken - temppretoken > 0:
+            if (currentaccount == accountKeys[posttokenbal[j].get("accountIndex")] ):
+                finaldata.accounts = []
+                finaldata.transactions = []
+                return finaldata
+            accounts += [accountKeys[posttokenbal[j].get("accountIndex")]]
+            accountresponse = http_client.get_account_info( accountKeys[posttokenbal[j].get("accountIndex")], encoding="jsonParsed" )
+            accountresult = accountresponse.get("result")
+            if accountresult is not None:
+                accountvalue = accountresult.get("value")
+                if accountvalue is not None:
+                    if (currentaccount == accountvalue.get("data").get("parsed").get("info").get("owner") ):
+                        finaldata.accounts = []
+                        finaldata.transactions = []
+                        return finaldata
+                    accounts += [ accountvalue.get("data").get("parsed").get("info").get("owner") ]
+    accounts = list(set(accounts))
+    for y in range(0, len(accounts)):
+        transactions += [(transactionID, currentaccount, accounts[y])]
+    finaldata.accounts = accounts
+    finaldata.transactions = transactions
+    return finaldata
+
+
+def get_initial_suspicious_accounts(transactionID): # this functions returns list of accounts which received SOL/tokens within a transaction
+    finaldata = TraceData([], [])
+    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    accounts = []
+    transactions = []
+    response = http_client.get_transaction(transactionID)
+    result = response.get("result")
+    meta = result.get("meta")
+    errcode = meta.get("err")
+    if errcode is not None:
+        return finaldata
+    postBalances = meta.get("postBalances")
+    preBalances = meta.get("preBalances")
+    posttokenbal = meta.get("postTokenBalances")
+    pretokenbal = meta.get("preTokenBalances")
     transaction = result.get("transaction")
     message = transaction.get("message")
     accountKeys = message.get("accountKeys")
-    if len(accountKeys) != 3:
-        return False, 0, 0, 0, 0
-    for i in range(0, len(accountKeys)):
-        if accountKeys[i] == curaddress:
-            curloc = i
-            continue
-        elif accountKeys[i] == "11111111111111111111111111111111":
-            progloc = i
-            continue
-        else:
-            otherloc = i
-            continue
-    if postBalances[curloc] >= preBalances[curloc]:  # if current account did not send SOL
-        return False, 0, 0, 0, 0
-    # else, the current account sent SOL return data
-    cursolamount = (postBalances[otherloc] - preBalances[otherloc])* 0.000000001 # calculate SOL other account gained
-    return True, transactionID, curaddress, accountKeys[otherloc], cursolamount
+    #loop through token balances, if the difference between postand pre is positive, add that account at that index to array
+    for i in range(0, len(postBalances)):
+        if postBalances[i] - preBalances[i] > 0:
+            accounts += [accountKeys[i]]
+    tokenamounts = min(len(posttokenbal), len(pretokenbal))
+    for j in range(0, tokenamounts):
+        temppostoken = posttokenbal[j].get("uiTokenAmount").get("uiAmount")
+        temppretoken = pretokenbal[j].get("uiTokenAmount").get("uiAmount")
+        if temppostoken is None:
+            temppostoken = 0.0
+        if temppretoken is None:
+            temppretoken = 0.0
+        if temppostoken - temppretoken > 0:
+            accounts += [accountKeys[posttokenbal[j].get("accountIndex")]]
+            accountresponse = http_client.get_account_info( accountKeys[posttokenbal[j].get("accountIndex")], encoding="jsonParsed" )
+            #print(accountresponse)
+            accountresult = accountresponse.get("result")
+            if accountresult is not None:
+                accountvalue = accountresult.get("value")
+                if accountvalue is not None:
+                    accounts += [ accountvalue.get("data").get("parsed").get("info").get("owner") ]
+                    #print("added ", accountKeys[posttokenbal[j].get("accountIndex")], "to the account array")
+    accounts = list(set(accounts))
 
-def get_trace_data(transID, level):
+    #print(accounts)
+    finaldata.accounts = accounts
+    finaldata.transactions = transactions
+    return finaldata
+
+
+
+
+def get_trace_data(transID, level, currentaccount):
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
     transactions = []
     accounts = []
     finaldata = TraceData([], [])
     if level == 3:
         return finaldata
-    curdata = get_initial_data(transID)
-    scammer_address = curdata[3]
-    response = http_client.get_signatures_for_address(curdata[3], until=transID)
-    transactionlist = response["result"]
-    transactionlist.reverse()
-    if len(transactionlist) == 1000:
-        return finaldata
-    rangetransactions = 10
-    if len(transactionlist)<=10:
-        rangetransactions = len(transactionlist)
-    for i in range(0, rangetransactions):
-        transaction = transactionlist[i]
-        result = get_transaction_data(transaction["signature"], scammer_address)
-        if result[0] == False:
+
+    curdata = get_suspicious_accounts(transID, currentaccount)
+    transactions += curdata.transactions
+    accounts += curdata.accounts
+    for t in range(0, len(curdata.accounts)):
+        response = http_client.get_signatures_for_address(curdata.accounts[t], until=transID)
+        transactionlist = response["result"]
+        transactionlist.reverse()
+        if len(transactionlist) == 1000:
             continue
-        else:
-            transactions += [(result[1], result[2], result[3], result[4])]
-            accounts += [result[3]]
-            if level + 1 <3:
-                curtrace = get_trace_data(transaction["signature"], level + 1)
-                transactions += curtrace.transactions
-                accounts += curtrace.accounts
+        rangetransactions = 10
+        if len(transactionlist)<=10:
+            rangetransactions = len(transactionlist)
+        for i in range(0, rangetransactions):
+            transaction = transactionlist[i]
+            result = get_suspicious_accounts(transaction["signature"], curdata.accounts[t])
+            transactions += result.transactions
+            accounts += result.accounts
+            if level +1 < 3:
+                for f in range(0, len(result.accounts)):
+                    curtrace = get_trace_data(transaction["signature"], level + 1, result.accounts[f])
+                    transactions += curtrace.transactions
+                    accounts += curtrace.accounts
     finaldata.transactions = transactions
     finaldata.accounts = accounts
     return finaldata
@@ -127,49 +182,46 @@ def get_trace_data(transID, level):
 def get_Data(transactionID):
     # get list of transactions after scam transaction
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
-
-    initialdata = get_initial_data(transactionID)
+    timestamp1 = time.time()
+    # Your code here
+    print("Starting algorithm...")
+    initialdata = get_initial_suspicious_accounts(transactionID)
     transactions = []
     accounts = []
-    scammer_address = initialdata[3]
-    transactions += [(initialdata[1], initialdata[2], initialdata[3], initialdata[4])]
-    accounts+=[scammer_address]
-    response = http_client.get_signatures_for_address(scammer_address, until=transactionID)
-    transactionlist = response.get("result")
-    transactionlist.reverse()
-    if len(transactionlist) == 1000:
-        tempdict = {
-            "accounts":[],
-            "transactions":[]
-        }
-        return json.dumps(tempdict, indent=3)
-    separation_level = 1
-    rangetransactions = 50
-    if len(transactionlist) <= 50:
-        rangetransactions = len(transactionlist)
-    for i in range(0, rangetransactions):
-        # error check transactions before adding more nodes
-
-        transaction = transactionlist[i]
-
-        result = get_transaction_data(transaction["signature"],scammer_address)
-        if result[0] == False:
+    accounts+=initialdata.accounts
+    for z in range(0, len(initialdata.accounts)):
+        response = http_client.get_signatures_for_address(initialdata.accounts[z], until=transactionID)
+        transactionlist = response.get("result")
+        transactionlist.reverse()
+        if len(transactionlist) == 1000:
             continue
-        else:
-            transactions += [(result[1], result[2], result[3], result[4])]
-            accounts += [result[3]]
-            curtrace = get_trace_data(transaction["signature"], separation_level+1)
-            transactions += curtrace.transactions
-            accounts += curtrace.accounts
+        separation_level = 1
+        rangetransactions = 50
+        if len(transactionlist) <= 50:
+            rangetransactions = len(transactionlist)
+        for i in range(0, rangetransactions):
+            # error check transactions before adding more nodes
+
+            transaction = transactionlist[i]
+
+            result = get_suspicious_accounts(transaction["signature"], initialdata.accounts[z])
+            transactions += result.transactions
+            accounts += result.accounts
+            for g in range(0, len(result.accounts)):
+                curtrace = get_trace_data(transaction["signature"], separation_level+1, result.accounts[g]) # maybe feed in current account or initialdata.accounts[z]
+                transactions += curtrace.transactions
+                accounts += curtrace.accounts
+
     accounts = list(set(accounts))
 
     dictionary = {
-        "transactions": transactions,
-        "accounts": accounts
+        "transactions": transactions, # array(tuple(transhash, sender, receiver))
+        "accounts": accounts #
     }
-
+    timestamp2 = time.time()
+    print("This algorithm took %.2f seconds" % (timestamp2 - timestamp1))
     json_object = json.dumps(dictionary, indent=3)
-    #print("The json is: ", json_object)
+    print("The json is: ", json_object)
 
 
 
