@@ -1,6 +1,5 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
-
 from solana.rpc.api import Client
 import numpy as npy
 import requests
@@ -34,6 +33,10 @@ def get_final_transaction(transID):
     transactionID = transID
     http_client = Client("https://ssc-dao.genesysgo.net/")
     response = http_client.get_transaction(transactionID)
+    
+    if 'error' in response:
+        return "Bad Request", 400
+    
     result = response['result']
     accounts = []
     transactions = []
