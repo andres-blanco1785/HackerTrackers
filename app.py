@@ -33,6 +33,11 @@ def get_transaction_info(transactionID):
     return response.json()
 
 
+class TraceData:
+  def __init__(self, transactions, accounts):
+    self.transactions = []
+    self.accounts = []
+
 def get_initial_data(transID):
     transaction_info = requests.get(f'https://public-api.solscan.io/transaction/{transID}')
     curdict = transaction_info.json()
@@ -83,6 +88,37 @@ def get_transaction_data(transactionID, curaddress):
     cursolamount = (postBalances[otherloc] - preBalances[otherloc])* 0.000000001 # calculate SOL other account gained
     return True, transactionID, curaddress, accountKeys[otherloc], cursolamount
 
+def get_trace_data(transID, level):
+    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    transactions = []
+    accounts = []
+    finaldata = TraceData([], [])
+    if level == 3:
+        return finaldata
+    curdata = get_initial_data(transID)
+    scammer_address = curdata[3]
+    response = http_client.get_signatures_for_address(curdata[3], until=transID)
+    transactionlist = response["result"]
+    transactionlist.reverse()
+    if len(transactionlist) == 1000:
+        return finaldata
+    rangetransactions = 10
+    if len(transactionlist)<=10:
+        rangetransactions = len(transactionlist)
+    for i in range(0, rangetransactions):
+        transaction = transactionlist[i]
+        result = get_transaction_data(transaction["signature"], scammer_address)
+        if result[0] == False:
+            continue
+        else:
+            transactions += [(result[1], result[2], result[3], result[4])]
+            accounts += [result[3]]
+            curtrace = get_trace_data(transaction["signature"], level + 1)
+            transactions += curtrace.transactions
+            accounts += curtrace.accounts
+    finaldata.transactions = transactions
+    finaldata.accounts = accounts
+    return finaldata
 
 def get_Data(transactionID):
     # get list of transactions after scam transaction
@@ -97,7 +133,17 @@ def get_Data(transactionID):
     response = http_client.get_signatures_for_address(scammer_address, until=transactionID)
     transactionlist = response.get("result")
     transactionlist.reverse()
-    for i in range(0, 128): 
+    if len(transactionlist) == 1000:
+        tempdict = {
+            "accounts":[],
+            "transactions":[]
+        }
+        return json.dumps(tempdict, indent=3)
+    separation_level = 1
+    rangetransactions = 50
+    if len(transactionlist) <= 50:
+        rangetransactions = len(transactionlist)
+    for i in range(0, rangetransactions):
         # error check transactions before adding more nodes
 
         transaction = transactionlist[i]
@@ -108,7 +154,10 @@ def get_Data(transactionID):
         else:
             transactions += [(result[1], result[2], result[3], result[4])]
             accounts += [result[3]]
-        
+            curtrace = get_trace_data(transaction["signature"], separation_level+1)
+            transactions += curtrace.transactions
+            accounts += curtrace.accounts
+    accounts = list(set(accounts))
 
     dictionary = {
         "transactions": transactions,
@@ -116,6 +165,7 @@ def get_Data(transactionID):
     }
 
     json_object = json.dumps(dictionary, indent=3)
+    #print("The json is: ", json_object)
 
 
 
