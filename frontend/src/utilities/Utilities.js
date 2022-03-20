@@ -12,9 +12,14 @@ export async function getBackwardsTrace(n) {
     let trace = await fetch(`${backendURL}/fin_transaction/${n}`)
         .then(response => response.text())
         .then(data => { return data });
+    
     return trace
 }
 
-// export async function getBlocklistedAccounts() {
-//     return 
-// }
+export async function getBlacklistedAccounts() {
+    let accounts = await fetch(`${backendURL}/get-blacklisted-accounts`)
+        .then(response => response.text())
+        .then(data => { return data });
+    
+    return accounts; 
+}
