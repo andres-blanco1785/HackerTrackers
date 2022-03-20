@@ -47,6 +47,7 @@ def populate_data(table):
     con.close()
 
 #This function returns a 2D array of the blacklist table
+@app.route("/get-blacklisted-accounts")
 def show_blacklist():
     cur = con.cursor()
     cur.execute("select * from blacklist")
