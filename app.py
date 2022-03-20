@@ -164,8 +164,8 @@ def get_trace_data(transID, level, currentaccount):
 
 def get_Data(transactionID):
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
-    timestamp1 = time.time()
-    print("Starting algorithm...")
+    #timestamp1 = time.time()
+    #print("Starting algorithm...")
     separation_level = 0
     initialdata = get_suspicious_accounts(transactionID, "none", separation_level)
     transactions = []
@@ -198,10 +198,10 @@ def get_Data(transactionID):
         "transactions": transactions, # array(tuple(transhash, sender, receiver))
         "accounts": accounts #
     }
-    timestamp2 = time.time()
-    print("This algorithm took %.2f seconds" % (timestamp2 - timestamp1))
+    #timestamp2 = time.time()
+    #print("This algorithm took %.2f seconds" % (timestamp2 - timestamp1))
     json_object = json.dumps(dictionary, indent=3)
-    print("The json is: ", json_object)
+    #print("The json is: ", json_object)
 
 
 
