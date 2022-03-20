@@ -58,17 +58,15 @@ def show_blacklist():
     blacklist = cur.fetchall()
     con.close()
     
-    blacklistJSON = {}
-    i = 0
+    blacklistJSON = []
     for account in blacklist:
-        blacklistJSON[i] = {
+        blacklistJSON.append({
             "account": account[1],
             "transactions": account[0]
-        }
-        i += 1
+        })
     print(blacklist)
     print(blacklistJSON)
-    return blacklistJSON
+    return jsonify({"blacklistedAccounts" : blacklistJSON})
 
 class TraceData:
   def __init__(self, transactions, accounts):
