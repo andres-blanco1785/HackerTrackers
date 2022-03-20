@@ -1,6 +1,6 @@
 
 .collapsible .toggle{
-    width: 100%;
+    width: 70vw;
     background-color: #698672;
     color: black;
     border: 2px solid black;
@@ -10,8 +10,9 @@
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-
+    border-radius: 10px;
 }
+
 .collapsible .toggle:hover {
   background-color: #78b281; /* Green */
   color: white;
