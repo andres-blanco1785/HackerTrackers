@@ -16,7 +16,8 @@ import hticon from "../images/HackerTrackers.png";
 export function HomePage () {
 
     const Button = styled.button`
-        width: 150px;
+        width: 200px;
+        height: 100px;
         background-color: #698672;
         color: black;
         transition-duration: 0.2s;
@@ -66,13 +67,33 @@ export function HomePage () {
                   padding: 2,
               }}
             />
-          <div className= "start">
+
+          <View style={{
+              flexDirection:"row",
+              padding: 20,
+              justifyContent: "center",
+
+
+          }} className= "start">
+
               <Link to="/input">
                   <Button>
                       Start
                   </Button>
               </Link>
-          </div>
+              <div style={{padding: 30 ,}}/>
+              <Link to="/input">
+                  <Button>
+                      Backwards Tracing
+                  </Button>
+              </Link>
+              <div style={{padding: 30 ,}}/>
+              <Link to="/input">
+                  <Button>
+                      Frontwards Tracing
+                  </Button>
+              </Link>
+          </View>
 
 
 
