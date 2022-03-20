@@ -7,7 +7,7 @@ import OutputPage from "./pages/OutputPage";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
-import BlocklistPage from "./pages/BlocklistPage";
+import BlacklistPage from "./pages/BlacklistPage";
 
 function App() {
 
@@ -30,7 +30,7 @@ function App() {
               <NavLink href="/#/contact">Contact</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="/#/blocklist">Blocklist</NavLink>
+              <NavLink href="/#/blacklist">Blocklist</NavLink>
             </NavItem>
           </Nav>
         </Navbar>
@@ -40,7 +40,7 @@ function App() {
           <Route path="/output" element={<OutputPage />}/>
           <Route path="/about" element={<AboutPage />}/>
           <Route path="/contact" element={<ContactPage />}/>
-          <Route path="/blocklist" element={<BlocklistPage />}/>
+          <Route path="/blacklist" element={<BlacklistPage />}/>
         </Routes>
       </HashRouter>
     </div>
