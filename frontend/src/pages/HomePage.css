@@ -1,0 +1,27 @@
+
+.each-slide > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  height: 550px;
+
+}
+
+
+.each-slide span {
+  padding: 20px;
+  line-height: 2em;
+  font-size: 30px;
+  text-align: center;
+  width: 60%;
+}
+
+
+
+.begin{
+  font-size: 30px;
+  font-family: "Monaco", monospace;
+  font-weight:bold;
+
+}
