@@ -14,13 +14,6 @@ bearerToken = os.environ.get("SOLANA_BEACH_API_KEY")
 app = Flask(__name__)
 CORS(app)
 
-con = psycopg2.connect(
-        host="localhost",
-        database="badActors",
-        user="postgres",
-        password="postgres"
-    )
-
 @app.route('/')
 def hello_world():  # put application's code here
     return 'Hello World!'
@@ -36,31 +29,10 @@ def get_transaction_info(transactionID):
     print('this is the response', response.json())
     return response.json()
 
-#This methods takes dictionaries from the forward and bakcwards trace and populates the database
-def populate_data(table):
-    txns = table.keys()
-    wallets = table.values()
-    cur = con.cursor()
-    for i in range(len(table)):
-        cur.execute("insert into blacklist (transaction_id, accountwallet) values (%s,%s);", (txns[i],wallets[i]))
-    con.commit()
-    con.close()
-
-#This function returns a 2D array of the blacklist table
-def show_blacklist():
-    cur = con.cursor()
-    cur.execute("select * from blacklist")
-    con.commit()
-    blacklist = cur.fetchall()
-    con.close()
-    return blacklist
-
 class TraceData:
   def __init__(self, transactions, accounts):
     self.transactions = []
     self.accounts = []
-
-
 
 def get_suspicious_accounts(transactionID, currentaccount, level): # this functions returns list of accounts which received SOL/tokens within a transaction
     finaldata = TraceData([], [])
@@ -122,12 +94,6 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
     finaldata.accounts = accounts
     finaldata.transactions = transactions
     return finaldata
-
-
-
-
-
-
 
 def get_trace_data(transID, level, currentaccount):
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
@@ -204,11 +170,10 @@ def get_Data(transactionID):
     #print("The json is: ", json_object)
 
 
-
 @app.route("/fin_transaction/<string:transID>")
 def get_final_transaction(transID):
     transactionID = transID
-    http_client = Client("https://ssc-dao.genesysgo.net/")
+    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
     response = http_client.get_transaction(transactionID)
     
     if 'error' in response:
@@ -295,8 +260,37 @@ def get_final_transaction(transID):
         account_list = result['transaction']['message']['accountKeys']
         account = account_list[account_index]
         accounts.append(account)
-
+        populate_data(transactionID, account)
     return {"Transactions": transactions, "Accounts": accounts}
+
+#This methods takes dictionaries from the forward and bakcwards trace and populates the database
+def populate_data(txn, wallet):
+    con = psycopg2.connect(
+        host="localhost",
+        database="badActors",
+        user="postgres",
+        password="postgres"
+    )
+    cur = con.cursor()
+    cur.execute("insert into blacklist (transaction_id, accountwallet) values (%s,%s);", (txn,wallet))
+    con.commit()
+    con.close()
+    return
+
+#This function returns a 2D array of the blacklist table
+def show_blacklist():
+    con = psycopg2.connect(
+        host="localhost",
+        database="badActors",
+        user="postgres",
+        password="postgres"
+    )
+    cur = con.cursor()
+    cur.execute("select * from blacklist")
+    con.commit()
+    blacklist = cur.fetchall()
+    con.close()
+    return blacklist
 
 if __name__ == '__main__':
     app.run()
