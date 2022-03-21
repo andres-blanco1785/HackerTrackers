@@ -16,8 +16,8 @@ import hticon from "../images/HackerTrackers.png";
 export function HomePage () {
 
     const Button = styled.button`
-        width: 200px;
-        height: 100px;
+        width: 300px;
+        height: 270px;
         background-color: #698672;
         color: black;
         transition-duration: 0.2s;
@@ -78,19 +78,31 @@ export function HomePage () {
 
               <Link to="/input">
                   <Button>
-                      Start
+                      <h2>Start Tracing</h2>
+                      <p>
+                          Enter the transaction ID to get started
+                      </p>
+
                   </Button>
               </Link>
               <div style={{padding: 30 ,}}/>
               <Link to="/input">
                   <Button>
-                      Backwards Tracing
+
+                      <h2>Backwards Tracing</h2>
+                      <p>
+                          Enter the transaction ID to get started
+                      </p>
                   </Button>
               </Link>
               <div style={{padding: 30 ,}}/>
               <Link to="/input">
                   <Button>
-                      Frontwards Tracing
+
+                      <h2>Frontwards Tracing</h2>
+                      <p>
+                          Enter the transaction ID to get started
+                      </p>
                   </Button>
               </Link>
           </View>
