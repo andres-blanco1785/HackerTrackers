@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Alert, Button } from 'reactstrap';
+import { Alert, Button, Spinner } from 'reactstrap';
 import { useLocation } from "react-router-dom";
 import { getBackwardsTrace } from '../utilities/Utilities';
+import { getForwardsTrace } from '../utilities/Utilities';
 import Collapsible from "../components/Collapsible";
 import './OutputPage.css';
 
@@ -24,7 +25,8 @@ export default function OutputPage(props) {
 	 */
 	const [isLoading, setIsLoading] = useState(true);
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
-	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState({});
+	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
+	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
   
 	// AT THE MOMENT THIS IS NOT BEING USED BUT CAN BE UTILIZED FOR ANOTHER PURPOSE
 	// function printTransactionInfo() {
@@ -52,29 +54,38 @@ export default function OutputPage(props) {
 	 * and populate the backwardsTraceInfo object
 	 * @param {*} n transaction hash 
 	 */
-	async function getTrace(n) {
+	async function getTraceBack(n) {
 
-		const transactionJSON = await getBackwardsTrace(n)
-			.then(setIsLoading(false));
-
-		setBackwardsTraceInfo(transactionJSON);
-		if(transactionJSON === "Bad Request") {
+		const backwardsTraceOBJ = await getBackwardsTrace(n);
+		const backwardsTraceJSON = JSON.parse(backwardsTraceOBJ);
+		
+		setBackwardsTraceInfo(backwardsTraceJSON);
+		if(backwardsTraceJSON === "Bad Request") {
 			setIsLoading(false);
 			setInvalidRequest(true);
 		}
-
-		// console.log('transactionJSON: ', transactionJSON);
 	}
 
-	useEffect(()=>{
-		getTrace(state);
+	async function getTraceForwards(n) {
+		const forwardsTraceOBJ = await getForwardsTrace(n);
+		const forwardsTraceJSON = JSON.parse(forwardsTraceOBJ);
+
+		setForwardsTraceInfo(forwardsTraceJSON);
+		if(forwardsTraceJSON === "Bad Request") {
+			setIsLoading(false);
+			setInvalidRequest(true);
+		}
+	}
+
+
+	useEffect(async ()=>{
+		setIsLoading(true);
+		getTraceBack(state);
+		getTraceForwards(state);
 	}, [])
 
 	return (
 		<div>
-			{isLoading &&
-				<p>LOADING</p>
-			}
 			{isInvalidRequest &&
 				<div>
 				<Alert color="danger" className="errorBox">
@@ -83,18 +94,42 @@ export default function OutputPage(props) {
 				<Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
 			</div>
 			}
-			{(!isLoading && (backwardsTraceInfo !== null) && (backwardsTraceInfo !== "Bad Request")) && 
-				<div>
-					<h1>Accounts Assosiated:</h1>
-					{/* TODO: accounts and transactions need to be mapped
-					{backwardsTraceInfo.accounts.map((account, i) => {
-						<p key={i}>
-							account
-						</p>
-						})} 
-					*/}
-				</div>
-			}
+			<div>
+				
+				{typeof backwardsTraceInfo === 'undefined' ? 
+					<Spinner>
+						Loading...
+					</Spinner>
+				:(
+					<div>
+						<h1>Backwards Trace:</h1>
+						{backwardsTraceInfo.Accounts.map((account, i) => {
+							return (
+                                <Collapsible key={i} label={<a href={`https://explorer.solana.com/address/${account}`} target="_blank" >Layer {i}: {account}</a>}>
+                                    <a href={`https://explorer.solana.com/tx/${backwardsTraceInfo.Transactions[i]}`} target="_blank">{backwardsTraceInfo.Transactions[i]}</a>
+                                </Collapsible>
+						)})}
+						
+					</div>
+				)}
+
+				{typeof forwardsTraceInfo === 'undefined' ? 
+					<Spinner>
+					Loading...
+					</Spinner>
+				:(
+					<div>
+						<h1>Forwards Trace:</h1>
+						{forwardsTraceInfo.Accounts.map((account, i) => {
+							return (
+                                <Collapsible key={i} label={<a href={`https://explorer.solana.com/address/${account}`} target="_blank" >Layer {i}: {account}</a>}>
+                                    <a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i]}`} target="_blank">{forwardsTraceInfo.Transactions[i]}</a>
+                                </Collapsible>
+						)})}
+						
+					</div>
+				)}
+			</div>
 		</div>
   )
 }
