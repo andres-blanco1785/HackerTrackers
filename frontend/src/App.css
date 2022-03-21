@@ -8,8 +8,8 @@
 
 .App {
   text-align: center;
-  background-color: var(--text-light);
-  color: var(--text-dark);
+  background-color: var(--bg-dark);
+  color: var(--text-light);
 }
 
 .App-logo {

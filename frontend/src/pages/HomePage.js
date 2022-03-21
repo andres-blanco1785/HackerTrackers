@@ -1,9 +1,8 @@
 import React from 'react';
-import styled from 'styled-components'
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import "./HomePage.css";
 import 'react-slideshow-image/dist/styles.css';
-import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom'
 import slide1 from "../images/slide1.jpg";
 import { Slide } from 'react-slideshow-image';
 import {
@@ -11,9 +10,7 @@ import {
 } from 'react-native';
 import hticon from "../images/HackerTrackers.png";
 
-
-
-export function HomePage () {
+export default function HomePage () {
 
     const Button = styled.button`
         width: 300px;
