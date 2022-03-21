@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Alert, Button } from 'reactstrap';
+import { Alert, Button, Spinner } from 'reactstrap';
 import { useLocation } from "react-router-dom";
 import { getBackwardsTrace } from '../utilities/Utilities';
+import { getForwardsTrace } from '../utilities/Utilities';
 import Collapsible from "../components/Collapsible";
 import './OutputPage.css';
 
@@ -25,6 +26,7 @@ export default function OutputPage(props) {
 	const [isLoading, setIsLoading] = useState(true);
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
 	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
+	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
   
 	// AT THE MOMENT THIS IS NOT BEING USED BUT CAN BE UTILIZED FOR ANOTHER PURPOSE
 	// function printTransactionInfo() {
@@ -52,7 +54,7 @@ export default function OutputPage(props) {
 	 * and populate the backwardsTraceInfo object
 	 * @param {*} n transaction hash 
 	 */
-	async function getTrace(n) {
+	async function getTraceBack(n) {
 
 		const backwardsTraceOBJ = await getBackwardsTrace(n);
 		const backwardsTraceJSON = JSON.parse(backwardsTraceOBJ);
@@ -64,9 +66,21 @@ export default function OutputPage(props) {
 		}
 	}
 
+	async function getTraceForwards(n) {
+		const forwardsTraceOBJ = await getForwardsTrace();
+		const forwardsTraceJSON = JSON.parse(forwardsTraceOBJ);
+
+		setForwardsTraceInfo(forwardsTraceJSON);
+		if(forwardsTraceJSON === "Bad Request") {
+			setIsLoading(false);
+			setInvalidRequest(true);
+		}
+	}
+
+
 	useEffect(async ()=>{
 		setIsLoading(true);
-		getTrace(state);
+		getTraceBack(state);
 	}, [])
 
 	return (
@@ -82,26 +96,36 @@ export default function OutputPage(props) {
 			<div>
 				
 				{typeof backwardsTraceInfo === 'undefined' ? 
-					<p>LOADING</p>
+					<Spinner>
+						Loading...
+					</Spinner>
 				:(
 					<div>
-						<h1>Accounts Assosiated:</h1>
+						<h1>Backwards Trace:</h1>
 						{backwardsTraceInfo.Accounts.map((account, i) => {
 							return (
-								<p key={i}>
-									{account}
-								</p>
+                                <Collapsible key={i} label={<a href={`https://explorer.solana.com/address/${account}`} target="_blank" >Layer {i}: {account}</a>}>
+                                    <a href={`https://explorer.solana.com/tx/${backwardsTraceInfo.Transactions[i]}`} target="_blank">{backwardsTraceInfo.Transactions[i]}</a>
+                                </Collapsible>
 						)})}
-						<h1>Transactions Assosiated:</h1>
-						{backwardsTraceInfo.Transactions.map((transaction, i) => {
-							return (
-								<p key={i}>
-									{transaction}
-								</p>
-						)})}
+						
 					</div>
-				)
-				}
+				)}
+
+				{typeof forwardsTraceInfo === 'undefined' ? 
+					<></>
+				:(
+					<div>
+						<h1>Forwards Trace:</h1>
+						{forwardsTraceInfo.Accounts.map((account, i) => {
+							return (
+                                <Collapsible key={i} label={<a href={`https://explorer.solana.com/address/${account}`} target="_blank" >Layer {i}: {account}</a>}>
+                                    <a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i]}`} target="_blank">{forwardsTraceInfo.Transactions[i]}</a>
+                                </Collapsible>
+						)})}
+						
+					</div>
+				)}
 			</div>
 		</div>
   )
