@@ -278,7 +278,9 @@ def populate_data(txn, wallet):
     con.close()
     return
 
+
 #This function returns a 2D array of the blacklist table
+@app.route("/get-blacklisted-accounts")
 def show_blacklist():
     con = psycopg2.connect(
         host="localhost",
@@ -291,7 +293,15 @@ def show_blacklist():
     con.commit()
     blacklist = cur.fetchall()
     con.close()
-    return blacklist
+
+    blacklistJSON = []
+    for account in blacklist:
+        blacklistJSON.append({
+            "account": account[1],
+            "transactions": account[0]
+        })
+    
+    return jsonify({"blacklistedAccounts" : blacklistJSON})
 
 if __name__ == '__main__':
     app.run()
