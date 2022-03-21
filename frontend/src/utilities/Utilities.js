@@ -25,7 +25,7 @@ export async function getBlocklistedAccounts() {
 }
 
 export async function getForwardsTrace(n) {
-    let accounts = await fetch(`${backendURL}/ENDPOINT/${n}`)
+    let accounts = await fetch(`${backendURL}/forwards-trace/${n}`)
         .then(response => response.text())
         .then(data => { return data });
     

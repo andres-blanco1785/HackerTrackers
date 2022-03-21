@@ -128,6 +128,7 @@ def get_trace_data(transID, level, currentaccount):
     finaldata.accounts = accounts
     return finaldata
 
+@app.route("/forwards-trace/<string:transactionID>")
 def get_Data(transactionID):
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
     #timestamp1 = time.time()
@@ -144,8 +145,8 @@ def get_Data(transactionID):
         transactionlist.reverse()
         if len(transactionlist) == 1000:
             continue
-        lookuprange = 50
-        if len(transactionlist) <= 50:
+        lookuprange = 15
+        if len(transactionlist) <= 15:
             lookuprange = len(transactionlist)
         for i in range(0, lookuprange): # this level adds first level of transactions
             transaction = transactionlist[i]
@@ -161,13 +162,16 @@ def get_Data(transactionID):
     accounts = list(set(accounts))
 
     dictionary = {
-        "transactions": transactions, # array(tuple(transhash, sender, receiver))
-        "accounts": accounts #
+        "Transactions": transactions, # array(tuple(transhash, sender, receiver))
+        "Accounts": accounts #
     }
+    
     #timestamp2 = time.time()
     #print("This algorithm took %.2f seconds" % (timestamp2 - timestamp1))
     json_object = json.dumps(dictionary, indent=3)
-    #print("The json is: ", json_object)
+
+    return dictionary
+
 
 
 @app.route("/fin_transaction/<string:transID>")

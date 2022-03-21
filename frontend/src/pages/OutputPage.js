@@ -67,7 +67,7 @@ export default function OutputPage(props) {
 	}
 
 	async function getTraceForwards(n) {
-		const forwardsTraceOBJ = await getForwardsTrace();
+		const forwardsTraceOBJ = await getForwardsTrace(n);
 		const forwardsTraceJSON = JSON.parse(forwardsTraceOBJ);
 
 		setForwardsTraceInfo(forwardsTraceJSON);
@@ -81,6 +81,7 @@ export default function OutputPage(props) {
 	useEffect(async ()=>{
 		setIsLoading(true);
 		getTraceBack(state);
+		getTraceForwards(state);
 	}, [])
 
 	return (
@@ -113,7 +114,9 @@ export default function OutputPage(props) {
 				)}
 
 				{typeof forwardsTraceInfo === 'undefined' ? 
-					<></>
+					<Spinner>
+					Loading...
+					</Spinner>
 				:(
 					<div>
 						<h1>Forwards Trace:</h1>
