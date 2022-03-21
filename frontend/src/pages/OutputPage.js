@@ -24,7 +24,7 @@ export default function OutputPage(props) {
 	 */
 	const [isLoading, setIsLoading] = useState(true);
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
-	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState({});
+	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
   
 	// AT THE MOMENT THIS IS NOT BEING USED BUT CAN BE UTILIZED FOR ANOTHER PURPOSE
 	// function printTransactionInfo() {
@@ -54,27 +54,23 @@ export default function OutputPage(props) {
 	 */
 	async function getTrace(n) {
 
-		const transactionJSON = await getBackwardsTrace(n)
-			.then(setIsLoading(false));
-
-		setBackwardsTraceInfo(transactionJSON);
-		if(transactionJSON === "Bad Request") {
+		const backwardsTraceOBJ = await getBackwardsTrace(n);
+		const backwardsTraceJSON = JSON.parse(backwardsTraceOBJ);
+		
+		setBackwardsTraceInfo(backwardsTraceJSON);
+		if(backwardsTraceJSON === "Bad Request") {
 			setIsLoading(false);
 			setInvalidRequest(true);
 		}
-
-		// console.log('transactionJSON: ', transactionJSON);
 	}
 
-	useEffect(()=>{
+	useEffect(async ()=>{
+		setIsLoading(true);
 		getTrace(state);
 	}, [])
 
 	return (
 		<div>
-			{isLoading &&
-				<p>LOADING</p>
-			}
 			{isInvalidRequest &&
 				<div>
 				<Alert color="danger" className="errorBox">
@@ -83,18 +79,30 @@ export default function OutputPage(props) {
 				<Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
 			</div>
 			}
-			{(!isLoading && (backwardsTraceInfo !== null) && (backwardsTraceInfo !== "Bad Request")) && 
-				<div>
-					<h1>Accounts Assosiated:</h1>
-					{/* TODO: accounts and transactions need to be mapped
-					{backwardsTraceInfo.accounts.map((account, i) => {
-						<p key={i}>
-							account
-						</p>
-						})} 
-					*/}
-				</div>
-			}
+			<div>
+				
+				{typeof backwardsTraceInfo === 'undefined' ? 
+					<p>LOADING</p>
+				:(
+					<div>
+						<h1>Accounts Assosiated:</h1>
+						{backwardsTraceInfo.Accounts.map((account, i) => {
+							return (
+								<p key={i}>
+									{account}
+								</p>
+						)})}
+						<h1>Transactions Assosiated:</h1>
+						{backwardsTraceInfo.Transactions.map((transaction, i) => {
+							return (
+								<p key={i}>
+									{transaction}
+								</p>
+						)})}
+					</div>
+				)
+				}
+			</div>
 		</div>
   )
 }
