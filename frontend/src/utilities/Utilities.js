@@ -16,7 +16,7 @@ export async function getBackwardsTrace(n) {
     return trace
 }
 
-export async function getBlocklistedAccounts() {
+export async function getBlacklistedAccounts() {
     let accounts = await fetch(`${backendURL}/get-blacklisted-accounts`)
         .then(response => response.text())
         .then(data => { return data });
