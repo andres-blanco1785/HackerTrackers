@@ -36,7 +36,7 @@ class TraceData:
 
 def get_suspicious_accounts(transactionID, currentaccount, level): # this functions returns list of accounts which received SOL/tokens within a transaction
     finaldata = TraceData([], [])
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     accounts = []
     transactions = []
     result = http_client.get_transaction(transactionID).get("result")
@@ -96,7 +96,7 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
     return finaldata
 
 def get_trace_data(transID, level, currentaccount):
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     curlevel = level
     transactions = []
     accounts = []
@@ -130,7 +130,7 @@ def get_trace_data(transID, level, currentaccount):
 
 @app.route("/forwards-trace/<string:transactionID>")
 def get_Data(transactionID):
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     #timestamp1 = time.time()
     #print("Starting algorithm...")
     separation_level = 0
@@ -177,7 +177,7 @@ def get_Data(transactionID):
 @app.route("/fin_transaction/<string:transID>")
 def get_final_transaction(transID):
     transactionID = transID
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     response = http_client.get_transaction(transactionID)
     
     if 'error' in response:
