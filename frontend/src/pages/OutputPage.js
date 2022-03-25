@@ -17,8 +17,8 @@ import './OutputPage.css';
 export default function OutputPage(props) {
 	const { state } = useLocation();
 	const navigate = useNavigate();
+
 	/**
-	 * if isLoading is true, it will render a loading screen (will be changed later)
 	 * if isInvalidRequest is true, it will render an alert to the user that the input is invalid
 	 */
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
@@ -26,7 +26,7 @@ export default function OutputPage(props) {
 	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
 
 	/**
-	 * this function will fetch data from the api endpoint (/fin_transaction)
+	 * this function will fetch data from the api endpoints (/fin_transaction & /forwards-trace)
 	 * and populate the backwardsTraceInfo object
 	 * @param {*} n transaction hash 
 	 */
@@ -48,7 +48,7 @@ export default function OutputPage(props) {
 
 	useEffect(async () => {
 		getTraceInformation(state);
-	}, []);
+	});
 
 	return (
 		<div>
