@@ -17,7 +17,6 @@ export default function InputPage() {
     navigate("/output", { state: transactionInput});
   }
 
-
   return (
     <div className="inputPage">
       <div className="inputGroup">

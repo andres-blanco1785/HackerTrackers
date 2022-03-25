@@ -26,7 +26,6 @@ def get_transaction_info(transactionID):
         'accept': 'application/json'
     }
     response = requests.get(f'https://api.solanabeach.io/v1/transaction/{transactionID}', headers=request_headers)
-    print('this is the response', response.json())
     return response.json()
 
 class TraceData:
@@ -39,7 +38,10 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
     accounts = []
     transactions = []
-    result = http_client.get_transaction(transactionID).get("result")
+    response = http_client.get_transaction(transactionID)
+    if 'error' in response:
+        return finaldata
+    result = response.get("result")
     if result is None:
         return finaldata
     meta = result.get("meta")
@@ -131,10 +133,11 @@ def get_trace_data(transID, level, currentaccount):
 @app.route("/forwards-trace/<string:transactionID>")
 def get_Data(transactionID):
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
-    #timestamp1 = time.time()
-    #print("Starting algorithm...")
+
     separation_level = 0
     initialdata = get_suspicious_accounts(transactionID, "none", separation_level)
+    if len(initialdata.accounts) == 0:
+       return "Bad Request", 400
     transactions = []
     accounts = []
     accounts+=initialdata.accounts
@@ -179,7 +182,6 @@ def get_final_transaction(transID):
     transactionID = transID
     http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
     response = http_client.get_transaction(transactionID)
-    
     if 'error' in response:
         return "Bad Request", 400
     
