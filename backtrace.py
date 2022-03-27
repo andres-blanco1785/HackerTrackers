@@ -1,14 +1,16 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
 from solana.rpc.api import Client
+from database import *
 import numpy as npy
 import requests
 
+api_link = "https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/"
+
 def get_final_transaction(transID):
     transactionID = transID
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    http_client = Client(api_link)
     response = http_client.get_transaction(transactionID)
-
     if 'error' in response:
         return "Bad Request", 400
 
@@ -42,7 +44,7 @@ def get_final_transaction(transID):
     account_list = result['transaction']['message']['accountKeys']
     account = account_list[account_index]
     accounts.append(account)
-    populate_data(transactionID, account)
+    #populate_data(transactionID, account)
 
     while(len(accounts) <= 10 and max == False):
 
@@ -94,5 +96,5 @@ def get_final_transaction(transID):
         account_list = result['transaction']['message']['accountKeys']
         account = account_list[account_index]
         accounts.append(account)
-        populate_data(transactionID, account)
+        #populate_data(transactionID, account)
     return {"Transactions": transactions, "Accounts": accounts}
