@@ -1,3 +1,5 @@
+import uuid
+
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
 from solana.rpc.api import Client
@@ -5,6 +7,7 @@ from backtrace import *
 import numpy as npy
 import requests
 import psycopg2
+import psycopg2.extras
 import os
 from flask_cors import CORS, cross_origin
 import json
@@ -36,7 +39,7 @@ class TraceData:
 
 def get_suspicious_accounts(transactionID, currentaccount, level): # this functions returns list of accounts which received SOL/tokens within a transaction
     finaldata = TraceData([], [])
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     accounts = []
     transactions = []
     response = http_client.get_transaction(transactionID)
@@ -99,7 +102,7 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
     return finaldata
 
 def get_trace_data(transID, level, currentaccount):
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     curlevel = level
     transactions = []
     accounts = []
@@ -133,8 +136,9 @@ def get_trace_data(transID, level, currentaccount):
 
 @app.route("/forwards-trace/<string:transactionID>")
 def get_Data(transactionID):
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
-
+    http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
+    #timestamp1 = time.time()
+    #print("Starting algorithm...")
     separation_level = 0
     initialdata = get_suspicious_accounts(transactionID, "none", separation_level)
     if len(initialdata.accounts) == 0:
@@ -169,6 +173,10 @@ def get_Data(transactionID):
         "Transactions": transactions, # array(tuple(transhash, sender, receiver))
         "Accounts": accounts #
     }
+
+    for i in range(len(transactions)):
+        populate_data(transactions[i][0], transactions[i][1], blacklist_flag=False)
+        populate_data(transactions[i][0], transactions[i][2], blacklist_flag=False)
     
     #timestamp2 = time.time()
     #print("This algorithm took %.2f seconds" % (timestamp2 - timestamp1))
@@ -181,7 +189,7 @@ def get_Data(transactionID):
 @app.route("/fin_transaction/<string:transID>")
 def get_final_transaction(transID):
     transactionID = transID
-    http_client = Client("https://bitter-floral-paper.solana-mainnet.quiknode.pro/dec0009263e0e71d4da5def5e085c744dce3d43a/")
+    http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     response = http_client.get_transaction(transactionID)
     if 'error' in response:
         return "Bad Request", 400
@@ -216,7 +224,7 @@ def get_final_transaction(transID):
     account_list = result['transaction']['message']['accountKeys']
     account = account_list[account_index]
     accounts.append(account)
-    populate_data(transactionID, account)
+    populate_data(transactionID, account, blacklist_flag=True)
 
     while(len(accounts) <= 10 and max == False):
 
@@ -268,11 +276,11 @@ def get_final_transaction(transID):
         account_list = result['transaction']['message']['accountKeys']
         account = account_list[account_index]
         accounts.append(account)
-        populate_data(transactionID, account)
+        populate_data(transactionID, account, blacklist_flag=True)
     return {"Transactions": transactions, "Accounts": accounts}
 
 #This methods takes dictionaries from the forward and bakcwards trace and populates the database
-def populate_data(txn, wallet):
+def populate_data(txn, wallet, blacklist_flag):
     con = psycopg2.connect(
         host="localhost",
         database="badActors",
@@ -280,7 +288,12 @@ def populate_data(txn, wallet):
         password="postgres"
     )
     cur = con.cursor()
-    cur.execute("insert into blacklist (transaction_id, accountwallet) values (%s,%s);", (txn,wallet))
+    psycopg2.extras.register_uuid()
+    if blacklist_flag:
+        cur.execute("insert into transactions (id, transaction_id, accountwallet) values (%s,%s,%s);", (uuid.uuid4(),txn,wallet))
+        cur.execute("insert into blacklist (accountwallet, is_blacklisted) values (%s, %s);", (wallet, "true"))
+    else:
+        cur.execute("insert into transactions (id, transaction_id, accountwallet) values (%s,%s,%s);", (uuid.uuid4(),txn,wallet))
     con.commit()
     con.close()
     return
@@ -296,18 +309,19 @@ def show_blacklist():
         password="postgres"
     )
     cur = con.cursor()
-    cur.execute("select * from blacklist")
+    cur.execute("select accountwallet from blacklist;")
     con.commit()
     blacklist = cur.fetchall()
-    con.close()
-
     blacklistJSON = []
     for account in blacklist:
+        cur.execute("select transaction_id from transactions where accountwallet = (%s);", (account))
+        con.commit()
+        txns = cur.fetchall()
         blacklistJSON.append({
-            "account": account[1],
-            "transactions": account[0]
+            "account": account,
+            "transactions": txns
         })
-    
+    con.close()
     return jsonify({"blacklistedAccounts" : blacklistJSON})
 
 if __name__ == '__main__':
