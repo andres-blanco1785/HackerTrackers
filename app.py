@@ -305,18 +305,19 @@ def show_blacklist():
         password="postgres"
     )
     cur = con.cursor()
-    cur.execute("select distinct accountwallet from transactions")
+    cur.execute("select accountwallet from blacklist;")
     con.commit()
     blacklist = cur.fetchall()
-    con.close()
-
     blacklistJSON = []
     for account in blacklist:
+        cur.execute("select transaction_id from transactions where accountwallet = (%s);", (account))
+        con.commit()
+        txns = cur.fetchall()
         blacklistJSON.append({
-            "account": account[2],
-            "transactions": account[1]
+            "account": account,
+            "transactions": txns
         })
-    
+    con.close()
     return jsonify({"blacklistedAccounts" : blacklistJSON})
 
 if __name__ == '__main__':
