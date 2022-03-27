@@ -1,6 +1,7 @@
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
 from solana.rpc.api import Client
+from backtrace import *
 import numpy as npy
 import requests
 import psycopg2
