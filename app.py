@@ -3,6 +3,7 @@ import uuid
 from flask import Flask, json, jsonify, request, Response
 from dotenv import load_dotenv
 from solana.rpc.api import Client
+from backtrace import *
 import numpy as npy
 import requests
 import psycopg2
@@ -29,7 +30,6 @@ def get_transaction_info(transactionID):
         'accept': 'application/json'
     }
     response = requests.get(f'https://api.solanabeach.io/v1/transaction/{transactionID}', headers=request_headers)
-    print('this is the response', response.json())
     return response.json()
 
 class TraceData:
@@ -42,7 +42,10 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
     http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     accounts = []
     transactions = []
-    result = http_client.get_transaction(transactionID).get("result")
+    response = http_client.get_transaction(transactionID)
+    if 'error' in response:
+        return finaldata
+    result = response.get("result")
     if result is None:
         return finaldata
     meta = result.get("meta")
@@ -138,6 +141,8 @@ def get_Data(transactionID):
     #print("Starting algorithm...")
     separation_level = 0
     initialdata = get_suspicious_accounts(transactionID, "none", separation_level)
+    if len(initialdata.accounts) == 0:
+       return "Bad Request", 400
     transactions = []
     accounts = []
     accounts+=initialdata.accounts
@@ -186,7 +191,6 @@ def get_final_transaction(transID):
     transactionID = transID
     http_client = Client("https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/")
     response = http_client.get_transaction(transactionID)
-    
     if 'error' in response:
         return "Bad Request", 400
     
