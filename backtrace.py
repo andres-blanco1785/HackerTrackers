@@ -44,7 +44,7 @@ def get_final_transaction(transID):
     account_list = result['transaction']['message']['accountKeys']
     account = account_list[account_index]
     accounts.append(account)
-    #populate_data(transactionID, account)
+    populate_data(transactionID, account)
 
     while(len(accounts) <= 10 and max == False):
 
@@ -96,5 +96,5 @@ def get_final_transaction(transID):
         account_list = result['transaction']['message']['accountKeys']
         account = account_list[account_index]
         accounts.append(account)
-        #populate_data(transactionID, account)
+        populate_data(transactionID, account)
     return {"Transactions": transactions, "Accounts": accounts}
