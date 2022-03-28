@@ -1,16 +1,7 @@
-from flask import Flask, json, jsonify, request, Response
+from flask import Flask
 from dotenv import load_dotenv
-from solana.rpc.api import Client
-from backtrace import *
-from database import *
 from forwardtrace import *
-import numpy as npy
-import requests
-import psycopg2
-import os
-from flask_cors import CORS, cross_origin
-import json
-import time
+from flask_cors import CORS
 load_dotenv()
 
 app = Flask(__name__)
