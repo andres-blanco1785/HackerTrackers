@@ -1,7 +1,7 @@
 from backtrace import *
 import json
 
-api_link = "https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/"
+api_link = "https://ssc-dao.genesysgo.net/"
 
 class TraceData:
     def __init__(self, transactions, accounts):
