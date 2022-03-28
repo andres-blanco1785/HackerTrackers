@@ -18,7 +18,7 @@ export default function BlacklistPage(props) {
 
     useEffect(async () => {
         fetchData();
-    });
+    }, []);
 
     return (
         <div>

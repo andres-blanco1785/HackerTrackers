@@ -48,7 +48,7 @@ export default function OutputPage(props) {
 
 	useEffect(async () => {
 		getTraceInformation(state);
-	});
+	}, []);
 
 	return (
 		<div>
