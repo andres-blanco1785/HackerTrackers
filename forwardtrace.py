@@ -12,7 +12,6 @@ import json
 import time
 
 api_link = "https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/"
-
 class TraceData:
     def __init__(self, transactions, accounts):
         self.transactions = []
@@ -77,7 +76,7 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
     accounts = list(set(accounts))
     if level > 0:
         for y in range(0, len(accounts)):
-            transactions += [(transactionID, currentaccount, accounts[y])]
+            transactions += [(transactionID, currentaccount, accounts[y], level)]
     finaldata.accounts = accounts
     finaldata.transactions = transactions
     return finaldata
@@ -88,29 +87,29 @@ def get_trace_data(transID, level, currentaccount):
     transactions = []
     accounts = []
     finaldata = TraceData([], [])
-    if curlevel+1 >=3:
+    if curlevel >=3:
         finaldata.accounts = accounts
         finaldata.transactions = transactions
         return finaldata
     # if level 3 has not been reached, analyze accounts found in transaction to find more transactions/branches
-    curlevel+=1
     response = http_client.get_signatures_for_address(currentaccount, until=transID)
     transactionlist = response["result"]
     transactionlist.reverse()
     if len(transactionlist) == 1000:
         return finaldata
-    rangetransactions = 10
-    if len(transactionlist)<=10:
+    rangetransactions = 5
+    if len(transactionlist)<=5:
         rangetransactions = len(transactionlist)
     for i in range(0, rangetransactions):
         transaction = transactionlist[i]
         result = get_suspicious_accounts(transaction["signature"], currentaccount, curlevel)
         transactions += result.transactions
         accounts += result.accounts
-        for f in range(0, len(result.accounts)):
-            curtrace = get_trace_data(transaction["signature"], curlevel + 1, result.accounts[f])
-            transactions += curtrace.transactions
-            accounts += curtrace.accounts
+        if curlevel+1 <3:
+            for f in range(0, len(result.accounts)):
+                curtrace = get_trace_data(transaction["signature"], curlevel + 1, result.accounts[f])
+                transactions += curtrace.transactions
+                accounts += curtrace.accounts
     finaldata.transactions = transactions
     finaldata.accounts = accounts
     return finaldata
@@ -132,8 +131,8 @@ def get_Data(transactionID):
         transactionlist.reverse()
         if len(transactionlist) == 1000:
             continue
-        lookuprange = 15
-        if len(transactionlist) <= 15:
+        lookuprange = 5
+        if len(transactionlist) <= 5:
             lookuprange = len(transactionlist)
         for i in range(0, lookuprange): # this level adds first level of transactions
             transaction = transactionlist[i]
