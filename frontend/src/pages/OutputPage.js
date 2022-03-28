@@ -61,7 +61,7 @@ export default function OutputPage(props) {
 				</div>
 			:
 			<div>
-				{((typeof forwardsTraceInfo === 'undefined') && (typeof backwardsTraceInfo === 'undefined')) ? 
+				{((typeof forwardsTraceInfo === 'undefined') || (typeof backwardsTraceInfo === 'undefined')) ?
 					<Spinner>
 					Loading...
 					</Spinner>

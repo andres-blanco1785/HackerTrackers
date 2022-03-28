@@ -1,17 +1,7 @@
-from flask import Flask, json, jsonify, request, Response
-from dotenv import load_dotenv
-from solana.rpc.api import Client
 from backtrace import *
-from database import *
-import numpy as npy
-import requests
-import psycopg2
-import os
-from flask_cors import CORS, cross_origin
 import json
-import time
 
-api_link = "https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/"
+api_link = "https://ssc-dao.genesysgo.net/"
 
 class TraceData:
     def __init__(self, transactions, accounts):
@@ -153,8 +143,10 @@ def get_Data(transactionID):
         "Accounts": accounts #
     }
 
-    #timestamp2 = time.time()
-    #print("This algorithm took %.2f seconds" % (timestamp2 - timestamp1))
+    for i in range(len(transactions)):
+        populate_data(transactions[i][0], transactions[i][1], blacklist_flag=False)
+        populate_data(transactions[i][0], transactions[i][2], blacklist_flag=False)
+
     json_object = json.dumps(dictionary, indent=3)
 
     return dictionary
