@@ -1,13 +1,7 @@
-from flask import Flask, json, jsonify, request, Response
-from dotenv import load_dotenv
-from solana.rpc.api import Client
-import numpy as npy
-import requests
+from flask import jsonify
 import psycopg2
-import os
-from flask_cors import CORS, cross_origin
-import json
-import time
+import psycopg2.extras
+import uuid
 
 #This methods takes dictionaries from the forward and bakcwards trace and populates the database
 def populate_data(txn, wallet, blacklist_flag):
