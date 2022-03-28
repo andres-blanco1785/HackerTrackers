@@ -18,5 +18,5 @@ cur.execute('CREATE TABLE IF NOT EXISTS transactions (id text PRIMARY KEY,'
                                  'accountwallet text NOT NULL);'
                                  )
 
-cur.commit()
+con.commit()
 con.close()
