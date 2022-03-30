@@ -139,13 +139,12 @@ def get_Data(transactionID):
     accounts = list(set(accounts))
 
     dictionary = {
-        "Transactions": transactions, # array(tuple(transhash, sender, receiver))
+        "Transactions": transactions, # array(tuple(transhash, sender, receiver, depth))
         "Accounts": accounts #
     }
 
     for i in range(len(transactions)):
-        populate_data(transactions[i][0], transactions[i][1], blacklist_flag=False)
-        populate_data(transactions[i][0], transactions[i][2], blacklist_flag=False)
+        populate_data(transactions[i][0], transactions[i][1], transactions[i][2], transactions[i][3], blacklist_flag=False)
 
     json_object = json.dumps(dictionary, indent=3)
 
