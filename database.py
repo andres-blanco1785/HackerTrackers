@@ -11,7 +11,7 @@ def transaction_exists(txn):
         password="postgres"
     )
     cur = con.cursor()
-    cur.execute("select 1 from transactions where transaction_id = (%s);", (txn))
+    cur.execute("select 1 from transactions where transaction_id = (%s);", (txn,))
     con.commit()
     con.close()
     if cur.fetchall is None:
@@ -26,10 +26,10 @@ def get_wallet_count(wallet):
         password="postgres"
     )
     cur = con.cursor()
-    cur.execute("select count(sender) from transactions where sender = (%s);", (wallet))
+    cur.execute("select count(sender) from transactions where sender = (%s);", (wallet,))
     con.commit()
     result1 = cur.fetchone()
-    cur.execute("select count(sender) from transactions where sender = (%s);", (wallet))
+    cur.execute("select count(sender) from transactions where sender = (%s);", (wallet,))
     con.commit()
     result2 = cur.fetchone()
     return result1 + result2
@@ -63,14 +63,14 @@ def populate_data(txn, sender, receiver, depth, backtrace):
 
     #If the transaction is in the forward trace, then insert as not blacklisted if it does not exists
     else:
-        if get_wallet_count(sender) != 0:
+        if get_wallet_count(sender) == 0:
             cur.execute("insert into blacklist (accountwallet, is_blacklisted) values (%s, %s);", (sender, "false"))
 
         #If this wallet already exists in the blacklist, then we update the value to blacklisted
         else:
             if get_wallet_count(sender) > 1:
                 cur.execute("update blacklist set (is_blacklisted) = (%s) where (accountwallet) = (%s);", ("true", sender))
-        if get_wallet_count(receiver) !=0:
+        if get_wallet_count(receiver) == 0:
             cur.execute("insert into blacklist (accountwallet, is_blacklisted) values (%s, %s);", (receiver, "false"))
         else:
             if get_wallet_count(receiver) > 1:
