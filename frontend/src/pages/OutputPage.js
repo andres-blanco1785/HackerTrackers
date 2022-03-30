@@ -24,10 +24,16 @@ export const initialNodes = [
     data: {
       label: (
         <>
-          Welcome to <strong>React Flow!</strong>
+          CxegPrfn2ge5dNiQberUrQJkHCcimeR4VXkeawcFBBka
         </>
       ),
     },
+      style:{
+        background: '#cfb357',
+        color: '#2f4c59',
+        border: '1px solid #222138',
+        width: 350,
+      },
     position: { x: 250, y: 0 },
   },
   {
@@ -35,7 +41,7 @@ export const initialNodes = [
     data: {
       label: (
         <>
-          This is a <strong>default node</strong>
+          CxegPrfn2ge5dNiQberUrQJkHCcimeR4VXkeawcFBBka
         </>
       ),
     },
@@ -44,7 +50,7 @@ export const initialNodes = [
 ];
 
 export const initialEdges = [
-  { id: 'e1-2', source: '1', target: '2', label: 'this is an edge label' },
+  { id: 'e1-2', source: '1', target: '2', label: '2zCz2GgSoSS68eNJENWrYB48dMM1zmH8SZkgYneVDv2G4gRsVfwu5rNXtK5BKFxn7fSqX9BvrBc1rdPAeBEcD6Es' },
 
 ];
 
@@ -76,6 +82,12 @@ export default function OutputPage(props) {
     const [Fnodes, setFNodes, onFNodesChange] = useNodesState([]);
 	const [Fedges, setFEdges, onFEdgesChange] = useEdgesState([]);
 	const onFConnect = (params) => setFEdges((eds) => addEdge(params, eds));
+
+
+    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const onConnect = (params) => setEdges((eds) => addEdge(params, eds));
+
 
 	/**
 	 * this function will fetch data from the api endpoints (/fin_transaction & /forwards-trace)
@@ -115,6 +127,14 @@ export default function OutputPage(props) {
             backwardsNodes[i].data = Object();
             backwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${backwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {i}: {backwardsTraceInfo.Accounts[i]}</a>;
             backwardsNodes[i].position = {x,y};
+            backwardsNodes[i].style =
+                {
+                    background: '#549c9c',
+                    color: '#2f4c59',
+                    border: '1px solid #222138',
+                    width: 350,
+                };
+
             y = y + 250;
             if(i !== backwardsTraceInfo.Accounts.length - 1)
             {
@@ -136,16 +156,34 @@ export default function OutputPage(props) {
     {
         console.log("forwardsTraceInfo",forwardsTraceInfo);
         let forwardsNodes = [];
-        let forwardEdges = [];
-        let x = 100;
-        let y = 0;
+        let forwardsEdges = [];
+        let x = 20;
+        let y = 100;
         for(let i = 0; i < forwardsTraceInfo.Accounts.length; i++)
         {
             forwardsNodes[i] = Object();
             forwardsNodes[i].id = forwardsTraceInfo.Accounts[i];
             forwardsNodes[i].data = Object();
-            forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsNodes.Accounts[i]}`} target="_blank" >Layer {i}: {forwardsNodes.Accounts[i]}</a>;
+            forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {i}: {forwardsTraceInfo.Accounts[i]}</a>;
             forwardsNodes[i].position = {x,y};
+            forwardsNodes[i].style =
+                {
+                    background: '#549c9c',
+                    color: '#2f4c59',
+                    border: '1px solid #222138',
+                    width: 350,
+                };
+            x = x + 50;
+
+        }
+        console.log("console.log(forwardsNodes);",forwardsNodes);
+        for(let i = 0 ; i< forwardsTraceInfo.Transactions.length; i++)
+        {
+            forwardsEdges[i] = Object();
+            forwardsEdges[i].id = i;
+            forwardsEdges[i].source = forwardsTraceInfo.Transactions[i][1];
+            forwardsEdges[i].target = forwardsTraceInfo.Transactions[i][2];
+            forwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i][0]}`} target="_blank">{forwardsTraceInfo.Transactions[i][0]}</a>;
 
         }
 
@@ -156,7 +194,7 @@ export default function OutputPage(props) {
 	},[]);
 
     useEffect (() => {
-		if(!isInvalidRequest && backwardsTraceInfo  )
+		if(!isInvalidRequest && backwardsTraceInfo )
             getGraphNodesEdgeBackwards();
 	}, [isInvalidRequest,backwardsTraceInfo ]);
 
@@ -167,6 +205,9 @@ export default function OutputPage(props) {
 
 	return (
 		<div>
+
+            {/*<Flow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onConnect={onConnect} onEdgesChange={onEdgesChange}>*/}
+            {/*</Flow>*/}
 
 			{isInvalidRequest ?
 				<div>
@@ -184,6 +225,8 @@ export default function OutputPage(props) {
 				:(
 					<div>
 						<h1>Forwards Trace:</h1>
+                        <Flow nodes={Fnodes} edges={Fedges} onNodesChange={onFNodesChange} onConnect={onFConnect} onEdgesChange={onFEdgesChange}>
+                        </Flow>
 						{forwardsTraceInfo.Accounts.map((account, i) => {
 							return (
 								<Collapsible key={i} label={<a href={`https://explorer.solana.com/address/${account}`} target="_blank" >Layer {i}: {account}</a>}>
