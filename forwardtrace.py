@@ -144,7 +144,7 @@ def get_Data(transactionID):
     }
 
     for i in range(len(transactions)):
-        populate_data(transactions[i][0], transactions[i][1], transactions[i][2], transactions[i][3], blacklist_flag=False)
+        populate_data(transactions[i][0], transactions[i][1], transactions[i][2], transactions[i][3], backtrace=False)
 
     json_object = json.dumps(dictionary, indent=3)
 

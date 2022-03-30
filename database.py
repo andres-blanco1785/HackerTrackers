@@ -11,7 +11,7 @@ def transaction_exists(txn):
         password="postgres"
     )
     cur = con.cursor()
-    cur.execute("SELECT 1 from transactions where transaction_id=(%s)", (txn))
+    cur.execute("select 1 from transactions where transaction_id = (%s);", (txn))
     con.commit()
     con.close()
     if cur.fetchall is None:
@@ -26,10 +26,10 @@ def get_wallet_count(wallet):
         password="postgres"
     )
     cur = con.cursor()
-    cur.execute("SELECT COUNT(sender) from transactions where sender=(%s);", (wallet))
+    cur.execute("select count(sender) from transactions where sender = (%s);", (wallet))
     con.commit()
     result1 = cur.fetchone()
-    cur.execute("SELECT COUNT(sender) from transactions where sender=(%s);", (wallet))
+    cur.execute("select count(sender) from transactions where sender = (%s);", (wallet))
     con.commit()
     result2 = cur.fetchone()
     return result1 + result2
