@@ -67,6 +67,7 @@ export default function OutputPage(props) {
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
 	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
 	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
+
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const onConnect = (params) => setEdges((eds) => addEdge(params, eds));
@@ -103,9 +104,8 @@ export default function OutputPage(props) {
 
 	}
 
-    function getGraphNodesEdge()
+    function getGraphNodesEdgeBackwards()
     {
-        console.log("forwardsTraceInfo",forwardsTraceInfo);
         console.log("backwardsTraceInfo",backwardsTraceInfo);
         let backwardsNodes = [];
         let backwardsEdges = [];
@@ -133,8 +133,11 @@ export default function OutputPage(props) {
 
         setBNodes(backwardsNodes);
         setBEdges(backwardsEdges);
-        console.log("BNodes",Bnodes);
-        console.log("BEdges",Bedges);
+    }
+
+    function getGraphNodesEdgeForwards()
+    {
+        console.log("forwardsTraceInfo",forwardsTraceInfo);
     }
 
 	useEffect(async () => {
@@ -142,11 +145,14 @@ export default function OutputPage(props) {
 	},[]);
 
     useEffect (() => {
-		if(!isInvalidRequest && backwardsTraceInfo && forwardsTraceInfo )
-            getGraphNodesEdge();
-	}, [isInvalidRequest,backwardsTraceInfo, forwardsTraceInfo ]);
+		if(!isInvalidRequest && backwardsTraceInfo  )
+            getGraphNodesEdgeBackwards();
+	}, [isInvalidRequest,backwardsTraceInfo ]);
 
-
+    useEffect (() => {
+		if(!isInvalidRequest  && forwardsTraceInfo )
+            getGraphNodesEdgeForwards();
+	}, [isInvalidRequest, forwardsTraceInfo ]);
 
 	return (
 		<div>
