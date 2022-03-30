@@ -68,9 +68,6 @@ export default function OutputPage(props) {
 	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
 	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
 
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-    const onConnect = (params) => setEdges((eds) => addEdge(params, eds));
 
 	const [Bnodes, setBNodes, onBNodesChange] = useNodesState([]);
 	const [Bedges, setBEdges, onBEdgesChange] = useEdgesState([]);
@@ -109,7 +106,7 @@ export default function OutputPage(props) {
         console.log("backwardsTraceInfo",backwardsTraceInfo);
         let backwardsNodes = [];
         let backwardsEdges = [];
-        let x = 0;
+        let x = 100;
         let y = 0;
         for(let i = 0; i < backwardsTraceInfo.Accounts.length; i++)
         {
@@ -126,7 +123,7 @@ export default function OutputPage(props) {
                 backwardsEdges[i].source = i.toString();
                 backwardsEdges[i].target = (i+1).toString();
                 // backwardsEdges[i].animated = true;
-                // backwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${backwardsTraceInfo.Transactions[i+1]}`} target="_blank">{backwardsTraceInfo.Transactions[i+1]}</a>;
+                backwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${backwardsTraceInfo.Transactions[i+1]}`} target="_blank">{backwardsTraceInfo.Transactions[i+1]}</a>;
 
             }
         }
@@ -138,6 +135,20 @@ export default function OutputPage(props) {
     function getGraphNodesEdgeForwards()
     {
         console.log("forwardsTraceInfo",forwardsTraceInfo);
+        let forwardsNodes = [];
+        let forwardEdges = [];
+        let x = 100;
+        let y = 0;
+        for(let i = 0; i < forwardsTraceInfo.Accounts.length; i++)
+        {
+            forwardsNodes[i] = Object();
+            forwardsNodes[i].id = forwardsTraceInfo.Accounts[i];
+            forwardsNodes[i].data = Object();
+            forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsNodes.Accounts[i]}`} target="_blank" >Layer {i}: {forwardsNodes.Accounts[i]}</a>;
+            forwardsNodes[i].position = {x,y};
+
+        }
+
     }
 
 	useEffect(async () => {
@@ -156,8 +167,7 @@ export default function OutputPage(props) {
 
 	return (
 		<div>
-			{/*<Flow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onConnect={onConnect} onEdgesChange={onEdgesChange}>*/}
-			{/*</Flow>*/}
+
 			{isInvalidRequest ?
 				<div>
 					<Alert color="danger" className="errorBox">
