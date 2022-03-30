@@ -50,10 +50,10 @@ export const initialEdges = [
 
 
 /**
- * The output page, once rendered (in useEffect function), triggers API calls with
+ * The output page, once rendered (in useEffect function), triggers API calls with 
  * the transaction signature to receive both the forwards and backwards trace
- *
- *
+ * 
+ * 
  */
 
 export default function OutputPage(props) {
@@ -63,6 +63,7 @@ export default function OutputPage(props) {
 	/**
 	 * if isInvalidRequest is true, it will render an alert to the user that the input is invalid
 	 */
+	const [isLoading, setIsLoading] = useState(true);
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
 	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
 	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
@@ -92,6 +93,7 @@ export default function OutputPage(props) {
 			setInvalidRequest(true);
 			return
 		}
+
 
 		const backwardsTraceJSON = JSON.parse(backwardsTraceOBJ);
 		const forwardsTraceJSON = JSON.parse(forwardsTraceOBJ);

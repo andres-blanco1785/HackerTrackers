@@ -7,8 +7,8 @@ import './BlacklistPage.css';
 
 export default function BlacklistPage(props) {
 
-    const [blacklistedAccounts, setBlacklistedAccounts] = useState([]);
     const navigate = useNavigate();
+    const [blacklistedAccounts, setBlacklistedAccounts] = useState([]);
 
     async function fetchData() {
         const accountsOBJ = await getBlacklistedAccounts();
