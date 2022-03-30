@@ -41,93 +41,11 @@ export const initialNodes = [
     },
     position: { x: 100, y: 100 },
   },
-  {
-    id: '3',
-    data: {
-      label: (
-        <>
-          This one has a <strong>custom style</strong>
-        </>
-      ),
-    },
-    position: { x: 400, y: 100 },
-    style: {
-      background: '#D6D5E6',
-      color: '#333',
-      border: '1px solid #222138',
-      width: 180,
-    },
-  },
-  {
-    id: '4',
-    position: { x: 250, y: 200 },
-    data: {
-      label: 'Another default node',
-    },
-  },
-  {
-    id: '5',
-    data: {
-      label: 'Node id: 5',
-    },
-    position: { x: 250, y: 325 },
-  },
-  {
-    id: '6',
-    type: 'output',
-    data: {
-      label: (
-        <>
-          An <strong>output node</strong>
-        </>
-      ),
-    },
-    position: { x: 100, y: 480 },
-  },
-  {
-    id: '7',
-    type: 'output',
-    data: { label: 'Another output node' },
-    position: { x: 400, y: 450 },
-  },
 ];
 
 export const initialEdges = [
   { id: 'e1-2', source: '1', target: '2', label: 'this is an edge label' },
-  { id: 'e1-3', source: '1', target: '3' },
-  {
-    id: 'e3-4',
-    source: '3',
-    target: '4',
-    animated: true,
-    label: 'animated edge',
-  },
-  {
-    id: 'e4-5',
-    source: '4',
-    target: '5',
-    label: 'edge with arrow head',
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-    },
-  },
-  {
-    id: 'e5-6',
-    source: '5',
-    target: '6',
-    type: 'smoothstep',
-    label: 'smooth step edge',
-  },
-  {
-    id: 'e5-7',
-    source: '5',
-    target: '7',
-    type: 'step',
-    style: { stroke: '#f6ab6c' },
-    label: 'a step edge',
-    animated: true,
-    labelStyle: { fill: '#f6ab6c', fontWeight: 700 },
-  },
+
 ];
 
 
@@ -148,8 +66,9 @@ export default function OutputPage(props) {
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
 	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
 	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
-
-
+    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const onConnect = (params) => setEdges((eds) => addEdge(params, eds));
 
 	const [Bnodes, setBNodes, onBNodesChange] = useNodesState([]);
 	const [Bedges, setBEdges, onBEdgesChange] = useEdgesState([]);
@@ -193,26 +112,27 @@ export default function OutputPage(props) {
         for(let i = 0; i < backwardsTraceInfo.Accounts.length; i++)
         {
             backwardsNodes[i] = Object();
-            backwardsNodes[i].id = i;
+            backwardsNodes[i].id = i.toString();
             backwardsNodes[i].data = Object();
             backwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${backwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {i}: {backwardsTraceInfo.Accounts[i]}</a>;
             backwardsNodes[i].position = {x,y};
-            y = y + 50;
+            y = y + 250;
             if(i !== backwardsTraceInfo.Accounts.length - 1)
             {
                 backwardsEdges[i] = Object();
                 backwardsEdges[i].id = "e"+ i.toString() + "-" + (i+1).toString();
-                backwardsEdges[i].source = i;
-                backwardsEdges[i].target = i+1;
-                backwardsEdges[i].animated =  true;
-                backwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${backwardsTraceInfo.Transactions[i+1]}`} target="_blank">{backwardsTraceInfo.Transactions[i+1]}</a>
+                backwardsEdges[i].source = i.toString();
+                backwardsEdges[i].target = (i+1).toString();
+                // backwardsEdges[i].animated = true;
+                // backwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${backwardsTraceInfo.Transactions[i+1]}`} target="_blank">{backwardsTraceInfo.Transactions[i+1]}</a>;
 
             }
         }
-        console.log("backwardsNodes",backwardsNodes);
-        console.log("backwardsEdges",backwardsEdges);
+
         setBNodes(backwardsNodes);
         setBEdges(backwardsEdges);
+        console.log("BNodes",Bnodes);
+        console.log("BEdges",Bedges);
     }
 
 	useEffect(async () => {
