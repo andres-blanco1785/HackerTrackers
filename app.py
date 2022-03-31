@@ -1,7 +1,11 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from forwardtrace import *
 from flask_cors import CORS, cross_origin
+import psycopg2
+import psycopg2.extras
+import uuid
+from psycopg2 import Error
 load_dotenv()
 
 app = Flask(__name__)
@@ -28,6 +32,51 @@ def get_backtrace(transID):
 @cross_origin()
 def blacklist_data():
     return show_blacklist()
+
+@app.route('/blacklisted/', methods=['GET'])
+def blacklist_api_call():
+    account = request.args.get("account", None)
+    response = {}
+    if not account:
+        response["err"] = "no account found"
+    else:
+        try:
+            con = psycopg2.connect(
+            host="localhost",
+            database="badActors",
+            user="postgres",
+            password="postgres"
+            )
+            cur = con.cursor()
+            cur.execute("select is_blacklisted from blacklist where accountwallet = %s", (account,))
+            record = cur.fetchall()
+            con.close()
+            if len(record) == 0:
+                response["err"] = "account not found"
+            response["result"] = record[0][0]
+        except(Exception, Error) as error:
+            response["err"] = "error querying database"
+
+    return jsonify(response)
+
+@app.route('/blacklist/', methods=['GET'])
+def blacklisted():
+    try:
+        con = psycopg2.connect(
+            host="localhost",
+            database="badActors",
+            user="postgres",
+            password="postgres"
+        )
+        cur = con.cursor()
+        cur.execute("select accountwallet from blacklist;")
+        blacklist = cur.fetchall()
+        con.close()
+        if len(blacklist) == 0:
+            return jsonify({"err" : "empty database" })
+        return jsonify({"result" : blacklist})
+    except(Exception, Error) as error:
+        return jsonify({"err" : "error querying database" })
 
 
 if __name__ == '__main__':
