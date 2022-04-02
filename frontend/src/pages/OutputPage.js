@@ -159,8 +159,22 @@ export default function OutputPage(props) {
         let forwardsEdges = [];
         let x = 20;
         let y = 100;
+        let map = {};
+
+        for(let i = 0 ; i< forwardsTraceInfo.Transactions.length; i++)
+        {
+            forwardsEdges[i] = Object();
+            forwardsEdges[i].id = i;
+            forwardsEdges[i].source = forwardsTraceInfo.Transactions[i][1];
+            forwardsEdges[i].target = forwardsTraceInfo.Transactions[i][2];
+            forwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i][0]}`} target="_blank">{forwardsTraceInfo.Transactions[i][0]}</a>;
+            map[forwardsTraceInfo.Transactions[i][1]] = forwardsTraceInfo.Transactions[i][3]-1;
+            map[forwardsTraceInfo.Transactions[i][2]] = forwardsTraceInfo.Transactions[i][3];
+        }
+
         for(let i = 0; i < forwardsTraceInfo.Accounts.length; i++)
         {
+            y = map[forwardsTraceInfo.Accounts[i]] * 50;
             forwardsNodes[i] = Object();
             forwardsNodes[i].id = forwardsTraceInfo.Accounts[i];
             forwardsNodes[i].data = Object();
@@ -177,15 +191,10 @@ export default function OutputPage(props) {
 
         }
         console.log("console.log(forwardsNodes);",forwardsNodes);
-        for(let i = 0 ; i< forwardsTraceInfo.Transactions.length; i++)
-        {
-            forwardsEdges[i] = Object();
-            forwardsEdges[i].id = i;
-            forwardsEdges[i].source = forwardsTraceInfo.Transactions[i][1];
-            forwardsEdges[i].target = forwardsTraceInfo.Transactions[i][2];
-            forwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i][0]}`} target="_blank">{forwardsTraceInfo.Transactions[i][0]}</a>;
+        console.log("console.log(forwardsEdges);",forwardsEdges);
+        setFNodes(forwardsNodes);
+        setFEdges(forwardsEdges);
 
-        }
 
     }
 
