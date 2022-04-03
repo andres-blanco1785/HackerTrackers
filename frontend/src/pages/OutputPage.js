@@ -162,6 +162,7 @@ export default function OutputPage(props) {
         let x2 = 20;
         let y = 100;
         let map = {};
+        let position;
 
         for(let i = 0 ; i< forwardsTraceInfo.Transactions.length; i++)
         {
@@ -180,26 +181,26 @@ export default function OutputPage(props) {
             {
                 y = map[forwardsTraceInfo.Accounts[i]] * 50;
                 x0 = x0 + 50;
-                forwardsNodes[i].position = {x0,y};
+                position = {x0,y};
             }
             else if(forwardsTraceInfo.Accounts[i] === 1)
             {
                 y = map[forwardsTraceInfo.Accounts[i]] * 50;
                 x1 = x1 + 50;
-                forwardsNodes[i].position = {x1,y};
+                position = {x1,y};
             }
             else
             {
                 y = map[forwardsTraceInfo.Accounts[i]] * 50;
                 x2 = x2 + 50;
-                forwardsNodes[i].position = {x2,y};
+                position = {x2,y};
             }
 
             forwardsNodes[i] = Object();
             forwardsNodes[i].id = forwardsTraceInfo.Accounts[i];
             forwardsNodes[i].data = Object();
             forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {i}: {forwardsTraceInfo.Accounts[i]}</a>;
-
+            forwardsNodes[i].position = position;
             forwardsNodes[i].style =
                 {
                     background: '#549c9c',
