@@ -157,9 +157,11 @@ export default function OutputPage(props) {
         console.log("forwardsTraceInfo",forwardsTraceInfo);
         let forwardsNodes = [];
         let forwardsEdges = [];
+        let x = 0;
         let x0 = 20;
         let x1 = 20;
         let x2 = 20;
+        let x3 = 20;
         let y = 100;
         let map = {};
         let position;
@@ -171,35 +173,47 @@ export default function OutputPage(props) {
             forwardsEdges[i].source = forwardsTraceInfo.Transactions[i][1];
             forwardsEdges[i].target = forwardsTraceInfo.Transactions[i][2];
             forwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i][0]}`} target="_blank">{forwardsTraceInfo.Transactions[i][0]}</a>;
-            map[forwardsTraceInfo.Transactions[i][1]] = forwardsTraceInfo.Transactions[i][3]-1;
-            map[forwardsTraceInfo.Transactions[i][2]] = forwardsTraceInfo.Transactions[i][3];
+            map[forwardsTraceInfo.Transactions[i][1]] = forwardsTraceInfo.Transactions[i][3];
+            map[forwardsTraceInfo.Transactions[i][2]] = forwardsTraceInfo.Transactions[i][3]+1;
         }
+
+        console.log("map", map);
 
         for(let i = 0; i < forwardsTraceInfo.Accounts.length; i++)
         {
-            if(forwardsTraceInfo.Accounts[i] === 0)
+            if(map[forwardsTraceInfo.Accounts[i]] === 1)
             {
-                y = map[forwardsTraceInfo.Accounts[i]] * 50;
-                x0 = x0 + 50;
-                position = {x0,y};
+                y = 10;
+                x = x0;
+                position = {x,y};
+                x0 = x0 + 300;
             }
-            else if(forwardsTraceInfo.Accounts[i] === 1)
+            else if(map[forwardsTraceInfo.Accounts[i]] === 2)
             {
-                y = map[forwardsTraceInfo.Accounts[i]] * 50;
-                x1 = x1 + 50;
-                position = {x1,y};
+                y = 250;
+                x = x1;
+                position = {x,y};
+                x1 = x1 + 300;
+            }
+            else if(map[forwardsTraceInfo.Accounts[i]] == 3)
+            {
+                y = 500;
+                x = x2;
+                position = {x,y};
+                x2 = x2 + 300;
             }
             else
             {
-                y = map[forwardsTraceInfo.Accounts[i]] * 50;
-                x2 = x2 + 50;
-                position = {x2,y};
+                y = 750;
+                x = x3;
+                position = {x,y};
+                x3 = x3 + 150;
             }
 
             forwardsNodes[i] = Object();
             forwardsNodes[i].id = forwardsTraceInfo.Accounts[i];
             forwardsNodes[i].data = Object();
-            forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {i}: {forwardsTraceInfo.Accounts[i]}</a>;
+            forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {map[forwardsTraceInfo.Accounts[i]]}: {forwardsTraceInfo.Accounts[i]}</a>;
             forwardsNodes[i].position = position;
             forwardsNodes[i].style =
                 {
