@@ -157,7 +157,9 @@ export default function OutputPage(props) {
         console.log("forwardsTraceInfo",forwardsTraceInfo);
         let forwardsNodes = [];
         let forwardsEdges = [];
-        let x = 20;
+        let x0 = 20;
+        let x1 = 20;
+        let x2 = 20;
         let y = 100;
         let map = {};
 
@@ -174,12 +176,30 @@ export default function OutputPage(props) {
 
         for(let i = 0; i < forwardsTraceInfo.Accounts.length; i++)
         {
-            y = map[forwardsTraceInfo.Accounts[i]] * 50;
+            if(forwardsTraceInfo.Accounts[i] === 0)
+            {
+                y = map[forwardsTraceInfo.Accounts[i]] * 50;
+                x0 = x0 + 50;
+                forwardsNodes[i].position = {x0,y};
+            }
+            else if(forwardsTraceInfo.Accounts[i] === 1)
+            {
+                y = map[forwardsTraceInfo.Accounts[i]] * 50;
+                x1 = x1 + 50;
+                forwardsNodes[i].position = {x1,y};
+            }
+            else
+            {
+                y = map[forwardsTraceInfo.Accounts[i]] * 50;
+                x2 = x2 + 50;
+                forwardsNodes[i].position = {x2,y};
+            }
+
             forwardsNodes[i] = Object();
             forwardsNodes[i].id = forwardsTraceInfo.Accounts[i];
             forwardsNodes[i].data = Object();
             forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {i}: {forwardsTraceInfo.Accounts[i]}</a>;
-            forwardsNodes[i].position = {x,y};
+
             forwardsNodes[i].style =
                 {
                     background: '#549c9c',
@@ -187,7 +207,6 @@ export default function OutputPage(props) {
                     border: '1px solid #222138',
                     width: 350,
                 };
-            x = x + 50;
 
         }
         console.log("console.log(forwardsNodes);",forwardsNodes);
