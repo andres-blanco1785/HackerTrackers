@@ -22,8 +22,8 @@ export default function OutputPage(props) {
 	 * if isInvalidRequest is true, it will render an alert to the user that the input is invalid
 	 */
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
-	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
-	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
+	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(JSON.parse(localStorage.getItem('backwardsTraceInfo')));
+	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(JSON.parse(localStorage.getItem('forwardsTraceInfo')));
 
 	/**
 	 * this function will fetch data from the api endpoints (/fin_transaction & /forwards-trace)
@@ -43,11 +43,20 @@ export default function OutputPage(props) {
 		const forwardsTraceJSON = JSON.parse(forwardsTraceOBJ);
 		setForwardsTraceInfo(forwardsTraceJSON);
 		setBackwardsTraceInfo(backwardsTraceJSON);
+		localStorage.setItem('forwardsTrace', JSON.stringify(forwardsTraceJSON));
+		localStorage.setItem('backwardsTrace', JSON.stringify(backwardsTraceJSON));
 		
 	}
 
 	useEffect(async () => {
-		getTraceInformation(state);
+		if(((localStorage.getItem('forwardsTrace') === null) && 
+			(localStorage.getItem('backwardsTrace') === null)) &&
+			(state == localStorage.getItem('transactionInput'))) {
+			getTraceInformation(state);
+		} else {
+			setForwardsTraceInfo(JSON.parse(localStorage.getItem('forwardsTrace')));
+			setBackwardsTraceInfo(JSON.parse(localStorage.getItem('backwardsTrace')));
+		}
 	}, []);
 
 	return (
@@ -61,7 +70,7 @@ export default function OutputPage(props) {
 				</div>
 			:
 			<div>
-				{((typeof forwardsTraceInfo === 'undefined') || (typeof backwardsTraceInfo === 'undefined')) ?
+				{((forwardsTraceInfo === null) || (backwardsTraceInfo === null)) ?
 					<Spinner>
 					Loading...
 					</Spinner>

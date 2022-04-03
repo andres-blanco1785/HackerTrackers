@@ -15,6 +15,9 @@ export default function InputPage() {
 
   function onButtonClick() {
     navigate("/output", { state: transactionInput});
+    localStorage.setItem('transactionInput', transactionInput);
+    localStorage.removeItem('forwardsTrace');
+    localStorage.removeItem('backwardsTrace');
   }
 
   return (
