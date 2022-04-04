@@ -69,7 +69,6 @@ export default function OutputPage(props) {
 	/**
 	 * if isInvalidRequest is true, it will render an alert to the user that the input is invalid
 	 */
-	const [isLoading, setIsLoading] = useState(true);
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
 	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(JSON.parse(localStorage.getItem('backwardsTraceInfo')));
 	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(JSON.parse(localStorage.getItem('forwardsTraceInfo')));

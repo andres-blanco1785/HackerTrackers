@@ -21,19 +21,16 @@ function App() {
           <Nav className="me-auto"
           navbar>
             <NavItem>
-              <NavLink href="/">Home Page</NavLink>
+              <NavLink href="/#/input">Start Tracing</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="/#/input">Start Tracing</NavLink>
+              <NavLink href="/#/blacklist">Blacklist</NavLink>
             </NavItem>
             <NavItem>
               <NavLink href="/#/about">About</NavLink>
             </NavItem>
             <NavItem>
               <NavLink href="/#/contact">Contact</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="/#/blacklist">Blacklist</NavLink>
             </NavItem>
           </Nav>
         </Navbar>
