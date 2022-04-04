@@ -3,8 +3,7 @@ import ReactFlow, { MiniMap, Controls } from 'react-flow-renderer';
 
 
 const graphStyles = {
-    width: "100%",
-    height: "500px" ,
+    height: "700px" ,
     color: '#333',
     border: '1px solid #222138',
 
