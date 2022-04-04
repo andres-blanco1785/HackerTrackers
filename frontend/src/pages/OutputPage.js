@@ -84,10 +84,6 @@ export default function OutputPage(props) {
 	const onFConnect = (params) => setFEdges((eds) => addEdge(params, eds));
 
 
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-    const onConnect = (params) => setEdges((eds) => addEdge(params, eds));
-
 
 	/**
 	 * this function will fetch data from the api endpoints (/fin_transaction & /forwards-trace)
@@ -236,8 +232,14 @@ export default function OutputPage(props) {
     }
 
 	useEffect(async () => {
-
-		getTraceInformation(state);
+		if(((localStorage.getItem('forwardsTrace') === null) &&
+			(localStorage.getItem('backwardsTrace') === null)) &&
+			(state == localStorage.getItem('transactionInput'))) {
+			getTraceInformation(state);
+		} else {
+			setForwardsTraceInfo(JSON.parse(localStorage.getItem('forwardsTrace')));
+			setBackwardsTraceInfo(JSON.parse(localStorage.getItem('backwardsTrace')));
+		}
 	},[]);
 
     useEffect (() => {
@@ -250,15 +252,7 @@ export default function OutputPage(props) {
             getGraphNodesEdgeForwards();
 	}, [isInvalidRequest, forwardsTraceInfo ]);
 
-		if(((localStorage.getItem('forwardsTrace') === null) && 
-			(localStorage.getItem('backwardsTrace') === null)) &&
-			(state == localStorage.getItem('transactionInput'))) {
-			getTraceInformation(state);
-		} else {
-			setForwardsTraceInfo(JSON.parse(localStorage.getItem('forwardsTrace')));
-			setBackwardsTraceInfo(JSON.parse(localStorage.getItem('backwardsTrace')));
-		}
-	}, []);
+
 
 
 	return (
@@ -285,12 +279,12 @@ export default function OutputPage(props) {
 						<h1>Forwards Trace:</h1>
                         <Flow nodes={Fnodes} edges={Fedges} onNodesChange={onFNodesChange} onConnect={onFConnect} onEdgesChange={onFEdgesChange}>
                         </Flow>
-						{forwardsTraceInfo.Accounts.map((account, i) => {
-							return (
-								<Collapsible key={i} label={<a href={`https://explorer.solana.com/address/${account}`} target="_blank" >Layer {i}: {account}</a>}>
-									<a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i]}`} target="_blank">{forwardsTraceInfo.Transactions[i]}</a>
-								</Collapsible>
-						)})}
+						{/*{forwardsTraceInfo.Accounts.map((account, i) => {*/}
+						{/*	return (*/}
+						{/*		<Collapsible key={i} label={<a href={`https://explorer.solana.com/address/${account}`} target="_blank" >Layer {i}: {account}</a>}>*/}
+						{/*			<a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i]}`} target="_blank">{forwardsTraceInfo.Transactions[i]}</a>*/}
+						{/*		</Collapsible>*/}
+						{/*)})}*/}
 						<h1>Backwards Trace:</h1>
                         <Flow nodes={Bnodes} edges={Bedges} onNodesChange={onBNodesChange} onConnect={onBConnect} onEdgesChange={onBEdgesChange}>
                         </Flow>
