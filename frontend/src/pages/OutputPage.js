@@ -171,7 +171,7 @@ export default function OutputPage(props) {
             forwardsEdges[i].id = i;
             forwardsEdges[i].source = forwardsTraceInfo.Transactions[i][1];
             forwardsEdges[i].target = forwardsTraceInfo.Transactions[i][2];
-            forwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i][0]}`} target="_blank">{forwardsTraceInfo.Transactions[i][0]}</a>;
+            forwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${forwardsTraceInfo.Transactions[i][0]}`} target="_blank">{forwardsTraceInfo.Transactions[i][0].substring(0,7)+"..."}</a>;
             map[forwardsTraceInfo.Transactions[i][1]] = forwardsTraceInfo.Transactions[i][3];
             map[forwardsTraceInfo.Transactions[i][2]] = forwardsTraceInfo.Transactions[i][3]+1;
         }
@@ -212,14 +212,14 @@ export default function OutputPage(props) {
             forwardsNodes[i] = Object();
             forwardsNodes[i].id = forwardsTraceInfo.Accounts[i];
             forwardsNodes[i].data = Object();
-            forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {map[forwardsTraceInfo.Accounts[i]]}: {forwardsTraceInfo.Accounts[i]}</a>;
+            forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {map[forwardsTraceInfo.Accounts[i]]}: {forwardsTraceInfo.Accounts[i].substring(0,5)+"..."}</a>;
             forwardsNodes[i].position = position;
             forwardsNodes[i].style =
                 {
                     background: '#549c9c',
                     color: '#2f4c59',
                     border: '1px solid #222138',
-                    width: 350,
+                    width: 250,
                 };
 
         }
