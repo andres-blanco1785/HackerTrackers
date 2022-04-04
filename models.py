@@ -15,7 +15,7 @@ cur.execute('CREATE TABLE IF NOT EXISTS blacklist (accountwallet text PRIMARY KE
 
 cur.execute('CREATE TABLE IF NOT EXISTS transactions (id text PRIMARY KEY,'
                                  'transaction_id text NOT NULL,'
-                                 'sender text NOT NULL'
+                                 'sender text NOT NULL,'
                                  'receiver text,'
                                  'depth integer);'
                                 )
