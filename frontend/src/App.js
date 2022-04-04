@@ -21,6 +21,9 @@ function App() {
           <Nav className="me-auto"
           navbar>
             <NavItem>
+              <NavLink href="/">Home Page</NavLink>
+            </NavItem>
+            <NavItem>
               <NavLink href="/#/input">Start Tracing</NavLink>
             </NavItem>
             <NavItem>
