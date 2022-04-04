@@ -71,8 +71,8 @@ export default function OutputPage(props) {
 	 */
 	const [isLoading, setIsLoading] = useState(true);
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
-	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(undefined);
-	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(undefined);
+	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(JSON.parse(localStorage.getItem('backwardsTraceInfo')));
+	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(JSON.parse(localStorage.getItem('forwardsTraceInfo')));
 
 
 	const [Bnodes, setBNodes, onBNodesChange] = useNodesState([]);
@@ -110,6 +110,9 @@ export default function OutputPage(props) {
 		setForwardsTraceInfo(forwardsTraceJSON);
 		setBackwardsTraceInfo(backwardsTraceJSON);
 
+		localStorage.setItem('forwardsTrace', JSON.stringify(forwardsTraceJSON));
+		localStorage.setItem('backwardsTrace', JSON.stringify(backwardsTraceJSON));
+		
 
 	}
 
@@ -233,6 +236,7 @@ export default function OutputPage(props) {
     }
 
 	useEffect(async () => {
+
 		getTraceInformation(state);
 	},[]);
 
@@ -245,6 +249,17 @@ export default function OutputPage(props) {
 		if(!isInvalidRequest  && forwardsTraceInfo )
             getGraphNodesEdgeForwards();
 	}, [isInvalidRequest, forwardsTraceInfo ]);
+
+		if(((localStorage.getItem('forwardsTrace') === null) && 
+			(localStorage.getItem('backwardsTrace') === null)) &&
+			(state == localStorage.getItem('transactionInput'))) {
+			getTraceInformation(state);
+		} else {
+			setForwardsTraceInfo(JSON.parse(localStorage.getItem('forwardsTrace')));
+			setBackwardsTraceInfo(JSON.parse(localStorage.getItem('backwardsTrace')));
+		}
+	}, []);
+
 
 	return (
 		<div>
@@ -261,7 +276,7 @@ export default function OutputPage(props) {
 				</div>
 			:
 			<div>
-				{((typeof forwardsTraceInfo === 'undefined') || (typeof backwardsTraceInfo === 'undefined')) ?
+				{((forwardsTraceInfo === null) || (backwardsTraceInfo === null)) ?
 					<Spinner>
 					Loading...
 					</Spinner>
