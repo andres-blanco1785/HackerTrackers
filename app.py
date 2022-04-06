@@ -1,12 +1,10 @@
 from flask import Flask, request, jsonify
-from dotenv import load_dotenv
 from forwardtrace import *
 from flask_cors import CORS, cross_origin
 import psycopg2
 import psycopg2.extras
 import uuid
 from psycopg2 import Error
-load_dotenv()
 
 app = Flask(__name__)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -26,6 +24,11 @@ def forwardstrace(transactionID):
 @cross_origin()
 def get_backtrace(transID):
     return get_final_transaction(transID)
+
+@app.route("/address/<string:address>")
+@cross_origin()
+def get_info(address):
+    return get_account_info(address)
 
 #This function returns a 2D array of the blacklist table
 @app.route("/get-blacklisted-accounts")
