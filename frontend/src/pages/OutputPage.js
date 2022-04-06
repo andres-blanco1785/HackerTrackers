@@ -66,10 +66,8 @@ export default function OutputPage(props) {
 	const { state } = useLocation();
 	const navigate = useNavigate();
 
-	/**
-	 * if isInvalidRequest is true, it will render an alert to the user that the input is invalid
-	 */
 	const [isInvalidRequest, setInvalidRequest] = useState(false);
+  const [isServerError, setIsServerError] = useState(false);
 	const [backwardsTraceInfo, setBackwardsTraceInfo] = useState(JSON.parse(localStorage.getItem('backwardsTraceInfo')));
 	const [forwardsTraceInfo, setForwardsTraceInfo] = useState(JSON.parse(localStorage.getItem('forwardsTraceInfo')));
 
@@ -78,7 +76,7 @@ export default function OutputPage(props) {
 	const [Bedges, setBEdges, onBEdgesChange] = useEdgesState([]);
 	const onBConnect = (params) => setBEdges((eds) => addEdge(params, eds));
 
-    const [Fnodes, setFNodes, onFNodesChange] = useNodesState([]);
+  const [Fnodes, setFNodes, onFNodesChange] = useNodesState([]);
 	const [Fedges, setFEdges, onFEdgesChange] = useEdgesState([]);
 	const onFConnect = (params) => setFEdges((eds) => addEdge(params, eds));
 
@@ -96,9 +94,14 @@ export default function OutputPage(props) {
 
 		if((forwardsTraceOBJ === "Bad Request") || (backwardsTraceOBJ === "Bad Request")) {
 			setInvalidRequest(true);
-			return
+			return;
 		}
 
+    if((forwardsTraceOBJ.includes("500 Internal Server Error")) || (backwardsTraceOBJ.includes("500 Internal Server Error"))) {
+			setInvalidRequest(true);
+      setIsServerError(true);
+			return;
+		}
 
 		const backwardsTraceJSON = JSON.parse(backwardsTraceOBJ);
 		const forwardsTraceJSON = JSON.parse(forwardsTraceOBJ);
@@ -107,52 +110,43 @@ export default function OutputPage(props) {
 
 		localStorage.setItem('forwardsTrace', JSON.stringify(forwardsTraceJSON));
 		localStorage.setItem('backwardsTrace', JSON.stringify(backwardsTraceJSON));
-		
-
 	}
 
-    function getGraphNodesEdgeBackwards()
-    {
-        console.log("backwardsTraceInfo",backwardsTraceInfo);
-        let backwardsNodes = [];
-        let backwardsEdges = [];
-        let x = 100;
-        let y = 0;
-        for(let i = 0; i < backwardsTraceInfo.Accounts.length; i++)
-        {
-            backwardsNodes[i] = Object();
-            backwardsNodes[i].id = i.toString();
-            backwardsNodes[i].data = Object();
-            backwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${backwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {i}: {backwardsTraceInfo.Accounts[i]}</a>;
-            backwardsNodes[i].position = {x,y};
-            backwardsNodes[i].style =
-                {
-                    background: '#549c9c',
-                    color: '#2f4c59',
-                    border: '1px solid #222138',
-                    width: 350,
-                };
-
-            y = y + 250;
-            if(i !== backwardsTraceInfo.Accounts.length - 1)
+    function getGraphNodesEdgeBackwards() {
+      let backwardsNodes = [];
+      let backwardsEdges = [];
+      let x = 100;
+      let y = 0;
+      for(let i = 0; i < backwardsTraceInfo.Accounts.length; i++) {
+        backwardsNodes[i] = Object();
+        backwardsNodes[i].id = i.toString();
+        backwardsNodes[i].data = Object();
+        backwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${backwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {i}: {backwardsTraceInfo.Accounts[i]}</a>;
+        backwardsNodes[i].position = {x,y};
+        backwardsNodes[i].style =
             {
-                backwardsEdges[i] = Object();
-                backwardsEdges[i].id = "e"+ i.toString() + "-" + (i+1).toString();
-                backwardsEdges[i].source = i.toString();
-                backwardsEdges[i].target = (i+1).toString();
-                // backwardsEdges[i].animated = true;
-                backwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${backwardsTraceInfo.Transactions[i+1]}`} target="_blank">{backwardsTraceInfo.Transactions[i+1]}</a>;
+                background: '#549c9c',
+                color: '#2f4c59',
+                border: '1px solid #222138',
+                width: 350,
+            };
 
-            }
+        y = y + 250;
+        if(i !== backwardsTraceInfo.Accounts.length - 1) {
+          backwardsEdges[i] = Object();
+          backwardsEdges[i].id = "e"+ i.toString() + "-" + (i+1).toString();
+          backwardsEdges[i].source = i.toString();
+          backwardsEdges[i].target = (i+1).toString();
+          // backwardsEdges[i].animated = true;
+          backwardsEdges[i].label= <a href={`https://explorer.solana.com/tx/${backwardsTraceInfo.Transactions[i+1]}`} target="_blank">{backwardsTraceInfo.Transactions[i+1]}</a>;
         }
+      }
 
-        setBNodes(backwardsNodes);
-        setBEdges(backwardsEdges);
+      setBNodes(backwardsNodes);
+      setBEdges(backwardsEdges);
     }
 
-    function getGraphNodesEdgeForwards()
-    {
-        console.log("forwardsTraceInfo",forwardsTraceInfo);
+    function getGraphNodesEdgeForwards() {
         let forwardsNodes = [];
         let forwardsEdges = [];
         let x = 0;
@@ -175,7 +169,6 @@ export default function OutputPage(props) {
             map[forwardsTraceInfo.Transactions[i][2]] = forwardsTraceInfo.Transactions[i][3]+1;
         }
 
-        console.log("map", map);
 
         for(let i = 0; i < forwardsTraceInfo.Accounts.length; i++)
         {
@@ -222,8 +215,6 @@ export default function OutputPage(props) {
                 };
 
         }
-        console.log("console.log(forwardsNodes);",forwardsNodes);
-        console.log("console.log(forwardsEdges);",forwardsEdges);
         setFNodes(forwardsNodes);
         setFEdges(forwardsEdges);
 
@@ -262,11 +253,17 @@ export default function OutputPage(props) {
 
 			{isInvalidRequest ?
 				<div>
-					<Alert color="danger" className="errorBox">
-						This transaction is INVALID, please try again
-					</Alert>
-					<Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
-				</div>
+          {isServerError ?
+            <Alert color="danger" className="errorBox">
+              The JSON RPC Endpoint being used is currently down. Please try again later!
+            </Alert>
+            :
+            <Alert color="danger" className="errorBox">
+              This transaction is INVALID, please try again
+            </Alert>
+          }
+          <Button onClick={() => {navigate("/input", { state: {}})}}>Go Back</Button>
+        </div>
 			:
 			<div>
 				{((forwardsTraceInfo === null) || (backwardsTraceInfo === null)) ?
