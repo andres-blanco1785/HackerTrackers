@@ -7,6 +7,7 @@ import { getForwardsTrace } from '../utilities/Utilities';
 import Collapsible from "../components/Collapsible";
 import Flow from "../components/FlowGraph";
 import './OutputPage.css';
+import Dropdown from  "../components/Dropdown";
 import { MarkerType } from 'react-flow-renderer';
 import ReactFlow, {
   addEdge,
@@ -209,10 +210,16 @@ export default function OutputPage(props) {
                 x3 = x3 + 150;
             }
 
+
             forwardsNodes[i] = Object();
             forwardsNodes[i].id = forwardsTraceInfo.Accounts[i];
             forwardsNodes[i].data = Object();
-            forwardsNodes[i].data.label = <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {map[forwardsTraceInfo.Accounts[i]]}: {forwardsTraceInfo.Accounts[i].substring(0,5)+"..."}</a>;
+            forwardsNodes[i].data.label = 	<Dropdown key={i} label={forwardsTraceInfo.Accounts[i].substring(0,5)+"..."}>
+                <div>
+                    <p style={{fontSize: "25px"}}>Solana link :  </p>
+                    <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {map[forwardsTraceInfo.Accounts[i]]}: {forwardsTraceInfo.Accounts[i].substring(0,5)+"..."}</a>
+                </div>
+								</Dropdown>;
             forwardsNodes[i].position = position;
             forwardsNodes[i].style =
                 {
@@ -221,6 +228,24 @@ export default function OutputPage(props) {
                     border: '1px solid #222138',
                     width: 250,
                 };
+
+            if(i === 0)
+            {
+                forwardsNodes[i].style =
+                    {
+                        background: '#a44b58',
+                        color: '#2f4c59',
+                        border: '1px solid #222138',
+                        width: 250,
+                    };
+                forwardsNodes[i].data.label = 	<Dropdown style = {{backgroundColor:'#a44b58', border: '#a44b58'}} key={i} label={forwardsTraceInfo.Accounts[i].substring(0,5)+"..."}>
+                    <div>
+                        <p style={{fontSize: "25px"}}>Solana link :  </p>
+                        <a href={`https://explorer.solana.com/address/${forwardsTraceInfo.Accounts[i]}`} target="_blank" >Layer {map[forwardsTraceInfo.Accounts[i]]}: {forwardsTraceInfo.Accounts[i].substring(0,5)+"..."}</a>
+                    </div>
+                                    </Dropdown>;
+
+            }
 
         }
         console.log("console.log(forwardsNodes);",forwardsNodes);

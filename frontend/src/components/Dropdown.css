@@ -1,0 +1,19 @@
+.dropdown .toggle{
+    background-color: transparent;
+    border: transparent;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    transition-duration: 0.2s;
+    font-size: 32px;
+    width: 100%;
+
+}
+
+.dropdown .content-parent {
+  padding: 0px;
+  overflow: hidden;
+  transition: height ease 0.2s;
+}
