@@ -1,7 +1,7 @@
 from backtrace import *
 import json
 
-api_link = "https://ssc-dao.genesysgo.net/"
+api_link = "https://frosty-autumn-night.solana-mainnet.quiknode.pro/5e5903c7cccbe98c7f2da9058e393cb4ad6ca578/"
 
 class TraceData:
     def __init__(self, transactions, accounts):
@@ -32,12 +32,21 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
     # if current account did not gain tokens/sol, add receiving accounts to array
     for i in range(0, len(postBalances)):
         if postBalances[i] - preBalances[i] > 0:
+            walletresponse = http_client.get_account_info(accountKeys[i], encoding="jsonParsed")
+            walletresult = walletresponse.get("result")
+            if walletresult is None:
+                continue
+            walletvalue =  walletresult.get("value")
+            if walletvalue is None:
+                continue
+            if walletvalue.get("data")[0] == '':
+                continue
             if level > 0:
                 if currentaccount == accountKeys[i]:
                     finaldata.accounts = []
                     finaldata.transactions = []
                     return finaldata
-            accounts += [accountKeys[i]]
+            accounts += [(accountKeys[i], "wallet account")]
     tokenamounts = min(len(posttokenbal), len(pretokenbal))
     for j in range(0, tokenamounts):
         temppostoken = posttokenbal[j].get("uiTokenAmount").get("uiAmount")
@@ -52,18 +61,30 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
                     finaldata.accounts = []
                     finaldata.transactions = []
                     return finaldata
-            accounts += [accountKeys[posttokenbal[j].get("accountIndex")]]
+            
             accountresponse = http_client.get_account_info( accountKeys[posttokenbal[j].get("accountIndex")], encoding="jsonParsed" )
             accountresult = accountresponse.get("result")
-            if accountresult is not None:
-                accountvalue = accountresult.get("value")
-                if accountvalue is not None:
-                    if level > 0:
-                        if (currentaccount == accountvalue.get("data").get("parsed").get("info").get("owner") ):
-                            finaldata.accounts = []
-                            finaldata.transactions = []
-                            return finaldata
-                    accounts += [ accountvalue.get("data").get("parsed").get("info").get("owner") ]
+            if accountresult is None:
+                continue
+            accountvalue = accountresult.get("value")
+            if accountvalue is None:
+                continue
+            if level > 0:
+                if (currentaccount == accountvalue.get("data").get("parsed").get("info").get("owner") ):
+                    finaldata.accounts = []
+                    finaldata.transactions = []
+                    return finaldata
+            ownerresponse = http_client.get_account_info(accountvalue.get("data").get("parsed").get("info").get("owner"), encoding="jsonParsed")
+            ownerresult = ownerresponse.get("result")
+            if ownerresult is None:
+                continue
+            ownervalue = ownerresult.get("value")
+            if ownervalue is None:
+                continue
+            if ownervalue.get("data")[0] == '':
+                continue
+            accounts += [(accountKeys[posttokenbal[j].get("accountIndex")], "token account")]
+            accounts += [ (accountvalue.get("data").get("parsed").get("info").get("owner"), "wallet account") ]
     accounts = list(set(accounts))
     if level > 0:
         for y in range(0, len(accounts)):
@@ -98,7 +119,7 @@ def get_trace_data(transID, level, currentaccount):
         accounts += result.accounts
         if curlevel+1 <3:
             for f in range(0, len(result.accounts)):
-                curtrace = get_trace_data(transaction["signature"], curlevel + 1, result.accounts[f])
+                curtrace = get_trace_data(transaction["signature"], curlevel + 1, result.accounts[f][0])
                 transactions += curtrace.transactions
                 accounts += curtrace.accounts
     finaldata.transactions = transactions
@@ -117,7 +138,7 @@ def get_Data(transactionID):
     accounts+=initialdata.accounts
     separation_level+=1
     for z in range(0, len(initialdata.accounts)):
-        response = http_client.get_signatures_for_address(initialdata.accounts[z], until=transactionID)
+        response = http_client.get_signatures_for_address(initialdata.accounts[z][0], until=transactionID)
         transactionlist = response.get("result")
         transactionlist.reverse()
         if len(transactionlist) == 1000:
@@ -127,20 +148,26 @@ def get_Data(transactionID):
             lookuprange = len(transactionlist)
         for i in range(0, lookuprange): # this level adds first level of transactions
             transaction = transactionlist[i]
-            result = get_suspicious_accounts(transaction["signature"], initialdata.accounts[z], separation_level)
+            result = get_suspicious_accounts(transaction["signature"], initialdata.accounts[z][0], separation_level)
             # adds first level of transaction
             transactions += result.transactions
             accounts += result.accounts
             for g in range(0, len(result.accounts)): # adds 2nd++ level of transactions
-                curtrace = get_trace_data(transaction["signature"], separation_level+1, result.accounts[g])
+                curtrace = get_trace_data(transaction["signature"], separation_level+1, result.accounts[g][0])
                 transactions += curtrace.transactions
                 accounts += curtrace.accounts
 
     accounts = list(set(accounts))
-
+    accs = []
+    typesaccs = []
+    for x in range(0, len(accounts)):
+        accs+=accounts[x][0]
+        typesaccs+=accounts[x][1]
     dictionary = {
         "Transactions": transactions, # array(tuple(transhash, sender, receiver, depth))
-        "Accounts": accounts #
+        "Accounts": accs,
+        "Types":typesaccs
+
     }
 
     for i in range(len(transactions)):
