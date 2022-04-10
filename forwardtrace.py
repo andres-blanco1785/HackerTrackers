@@ -30,7 +30,8 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
     accountKeys = result.get("transaction").get("message").get("accountKeys")
     # check to make sure who gained tokens or sol is not currentaccount, if not on level 0
     # if current account did not gain tokens/sol, add receiving accounts to array
-    for i in range(0, len(postBalances)):
+    balanceamounts = min(len(postBalances), len(preBalances))
+    for i in range(0, balanceamounts):
         if postBalances[i] - preBalances[i] > 0:
             walletresponse = http_client.get_account_info(accountKeys[i], encoding="jsonParsed")
             walletresult = walletresponse.get("result")
@@ -39,8 +40,9 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
             walletvalue =  walletresult.get("value")
             if walletvalue is None:
                 continue
-            if walletvalue.get("data")[0] == '':
-                continue
+            if type(walletvalue.get("data")) is not dict:
+                if walletvalue.get("data")[0] != '':
+                    continue
             if level > 0:
                 if currentaccount == accountKeys[i]:
                     finaldata.accounts = []
@@ -74,21 +76,12 @@ def get_suspicious_accounts(transactionID, currentaccount, level): # this functi
                     finaldata.accounts = []
                     finaldata.transactions = []
                     return finaldata
-            ownerresponse = http_client.get_account_info(accountvalue.get("data").get("parsed").get("info").get("owner"), encoding="jsonParsed")
-            ownerresult = ownerresponse.get("result")
-            if ownerresult is None:
-                continue
-            ownervalue = ownerresult.get("value")
-            if ownervalue is None:
-                continue
-            if ownervalue.get("data")[0] == '':
-                continue
             accounts += [(accountKeys[posttokenbal[j].get("accountIndex")], "token account")]
             accounts += [ (accountvalue.get("data").get("parsed").get("info").get("owner"), "wallet account") ]
     accounts = list(set(accounts))
     if level > 0:
         for y in range(0, len(accounts)):
-            transactions += [(transactionID, currentaccount, accounts[y], level)]
+            transactions += [(transactionID, currentaccount, accounts[y][0], level)]
     finaldata.accounts = accounts
     finaldata.transactions = transactions
     return finaldata
@@ -128,13 +121,12 @@ def get_trace_data(transID, level, currentaccount):
 
 def get_Data(transactionID):
     http_client = Client(api_link)
-
+    transactions = []
+    accounts = []
     separation_level = 0
     initialdata = get_suspicious_accounts(transactionID, "none", separation_level)
     if len(initialdata.accounts) == 0:
         return "Bad Request", 400
-    transactions = []
-    accounts = []
     accounts+=initialdata.accounts
     separation_level+=1
     for z in range(0, len(initialdata.accounts)):
@@ -173,6 +165,5 @@ def get_Data(transactionID):
     for i in range(len(transactions)):
         populate_data(transactions[i][0], transactions[i][1], transactions[i][2], transactions[i][3], backtrace=False)
 
-    json_object = json.dumps(dictionary, indent=3)
 
     return dictionary
