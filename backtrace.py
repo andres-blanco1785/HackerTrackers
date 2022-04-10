@@ -41,9 +41,13 @@ def get_final_transaction(transID):
     account_list = result['transaction']['message']['accountKeys']
     account = account_list[account_index]
     response = http_client.get_account_info(account)
-    if(response['result']['value']['data'][0] == ""):
-        accounts.append(account)
-        populate_data(transactionID, account, "", 0, backtrace=True)
+    if 'value' in response['result']:
+        if response['result']['value'] != None:
+            if 'data' in response['result']['value']:
+                if(response['result']['value']['data'][0] != ""):
+                    return accounts
+    accounts.append(account)
+    populate_data(transactionID, account, "", 0, backtrace=True)
 
     while(len(accounts) <= 10 and max == False):
 
@@ -95,14 +99,17 @@ def get_final_transaction(transID):
         account_list = result['transaction']['message']['accountKeys']
         account = account_list[account_index]
         response = http_client.get_account_info(account)
-        if(response['result']['value']['data'][0] == ""):
-            accounts.append(account)
-            populate_data(transactionID, account, "", 0, backtrace=True)
+        if 'value' in response['result']:
+            if response['result']['value'] != None:
+                if 'data' in response['result']['value']:
+                    if(response['result']['value']['data'][0] != ""):
+                        break
+        accounts.append(account)
+        populate_data(transactionID, account, "", 0, backtrace=True)
     return {"Transactions": transactions, "Accounts": accounts}
 
 def get_account_info(address):
     wallet = address
     http_client = Client(api_link)
     response = http_client.get_account_info(wallet, encoding="jsonParsed")
-    data = response['result']['value']['data'][0]
-    return data
+    return response
